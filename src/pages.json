@@ -25,6 +25,10 @@
 			"style": {}
 		}, 
 		{
+			"path": "pages/coupon/index",
+			"style": {}
+		}, 
+		{
 			"path": "pages/search/index",
 			"style": {}
 		}
@@ -33,7 +37,7 @@
 		"current": 0,
 		"list": [{
 			"name": "test",
-			"path": "pages/search/index"
+			"path": "pages/coupon/index"
 		}]
 	},
 	"globalStyle": {

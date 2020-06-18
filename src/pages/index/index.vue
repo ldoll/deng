@@ -15,7 +15,7 @@
 					<view class="bg-img hei100 relative" :style="[{ backgroundImage:'url(/static/icon/coupon.png)' }]"><view class='cu-tag badge'>9</view></view>
 				</view>
 				<view class="padding-lg heightImg">
-					<view class="bg-img hei100" :style="[{ backgroundImage:'url(/static/icon/store.png)' }]"></view>
+					<view class="bg-img hei100" :style="[{ backgroundImage:'url(/static/icon/freeSettleIn.png)' }]"></view>
 				</view>
 				<view class="padding-lg heightImg">
 					<view class="bg-img hei100" :style="[{ backgroundImage:'url(/static/icon/store.png)' }]"></view>

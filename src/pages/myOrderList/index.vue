@@ -1,7 +1,9 @@
 <template>
-	<view class="body bg-white">
+	<view class="body bg-gray">
 		<cu-custom class="text-bold" bgColor="bg-green" :isBack="true"><block slot="backText"></block><block slot="content">餐饮等位</block></cu-custom>
-		<OrderItem />
+		<OrderItem  status='wait'/>
+		<OrderItem status='ok'/>
+		<view class="flex justify-center margin-top padding bg-white"><text class="text-gray text-sm">没有更多</text></view>
 	</view>
 </template>
 
