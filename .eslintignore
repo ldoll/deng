@@ -1,0 +1,6 @@
+src/static/
+src/unpackage/
+src/common/libs/
+src/colorui/components/
+dist/**/*.js
+public/**/*.js

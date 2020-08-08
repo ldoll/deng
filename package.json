@@ -3,6 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "lint": "eslint --ext .js,.vue src",
+    "lint:fix": "eslint --ext .js,.vue src --fix",
+    "stylelint": "stylelint src/**/*.{html,vue,css,less}",
+    "stylelint:fix": "stylelint src/**/*.{html,vue,css,less} --fix",
     "serve": "npm run dev:h5",
     "build": "npm run build:h5",
     "build:app-plus": "cross-env NODE_ENV=production UNI_PLATFORM=app-plus vue-cli-service uni-build",
@@ -67,12 +71,22 @@
     "@dcloudio/webpack-uni-pages-loader": "^2.0.0-27920200527001",
     "@vue/cli-plugin-babel": "~4.4.0",
     "@vue/cli-service": "~4.4.0",
+    "babel-eslint": "^10.1.0",
     "babel-plugin-import": "^1.11.0",
     "cross-env": "^7.0.2",
+    "eslint": "^5.16.0",
+    "eslint-config-alloy": "^2.0.5",
+    "eslint-plugin-vue": "^5.0.0",
+    "husky": "^3.1.0",
     "jest": "^25.4.0",
+    "lint-staged": "^9.5.0",
     "mini-types": "*",
     "miniprogram-api-typings": "*",
     "postcss-comment": "^2.0.0",
+    "stylelint": "^10.1.0",
+    "stylelint-config-standard": "^18.3.0",
+    "stylelint-order": "^3.0.1",
+    "vue-eslint-parser": "^7.1.0",
     "vue-template-compiler": "^2.6.11"
   },
   "browserslist": [
@@ -81,5 +95,20 @@
   ],
   "uni-app": {
     "scripts": {}
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "src/**/*.{js,vue}": [
+      "eslint --fix",
+      "git add"
+    ],
+    "src/**/*.{html,css,less,vue}": [
+      "stylelint --fix",
+      "git add"
+    ]
   }
 }

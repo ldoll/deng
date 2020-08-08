@@ -7,6 +7,7 @@
   （QQ交流群：240787041）
 */
 
+
 /* ==================
         初始化
  ==================== */
@@ -29,6 +30,10 @@ image {
 	box-sizing: border-box;
 }
 
+.relative{
+	position: relative;
+}
+
 .round {
 	border-radius: 5000upx;
 }
@@ -36,6 +41,22 @@ image {
 .radius {
 	border-radius: 6upx;
 }
+ /* radius */
+ .radius-xs{
+	 border-radius: 10upx;
+ }
+ .radius-sm{
+	 border-radius: 10upx;
+ }
+ .radius-df{
+	 border-radius: 20upx;
+ }
+ .radius-xl{
+	 border-radius: 30upx;
+ }
+ .radius-sl{
+	 border-radius: 40upx;
+ }
 
 /* ==================
           图片
@@ -890,6 +911,12 @@ button.cuIcon.lg {
 	background-position: center;
 	vertical-align: middle;
 	font-size: 1.5em;
+}
+.cu-avatar.bg-transparent{
+	background-color: transparent;
+}
+.bg-transparent{
+	background: transparent;
 }
 
 .cu-avatar.sm {
@@ -2787,16 +2814,27 @@ scroll-view.cu-steps .cu-item {
           布局
  ==================== */
 
+
 /*  -- flex弹性布局 -- */
 
 .flex {
 	display: flex;
 }
-
+.basis-5{
+	flex-basis: 5%;
+}
+.basis-10{
+	flex-basis: 10%;
+}
 .basis-xs {
 	flex-basis: 20%;
 }
-
+.basis-25{
+	flex-basis: 25%;
+}
+.basis-30{
+	flex-basis: 30%;
+}
 .basis-sm {
 	flex-basis: 40%;
 }
@@ -3419,12 +3457,12 @@ scroll-view.cu-steps .cu-item {
 }
 
 .bg-olive {
-	background-color: #8dc63f;
+	background-color: #92d2a9;
 	color: #ffffff;
 }
 
 .bg-green {
-	background-color: #39b54a;
+	background-color: #36ab60;
 	color: #ffffff;
 }
 
@@ -3848,7 +3886,7 @@ scroll-view.cu-steps .cu-item {
 .text-green,
 .line-green,
 .lines-green {
-	color: #39b54a;
+	color: #36ab60;
 }
 
 .text-cyan,
@@ -3910,3 +3948,4 @@ scroll-view.cu-steps .cu-item {
 .lines-white {
 	color: #ffffff;
 }
+
