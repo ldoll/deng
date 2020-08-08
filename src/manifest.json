@@ -42,12 +42,18 @@
     },
     "quickapp" : {},
     "mp-weixin" : {
-        "appid" : "wx03d3209412b01a07",
+        "appid" : "wxf1ca3c73c98c6a27",
         "setting" : {
             "urlCheck" : true,
             "postcss" : false,
             "es6" : false,
             "minified" : true
-        }
+        },
+        "permission" : {
+            "scope.userLocation" : {
+                "desc" : "你的位置信息将用于小程序位置接口的效果展示。"
+            }
+        },
+        "navigateToMiniProgramAppIdList" : [ "wxe5f52902cf4de896" ]
     }
 }

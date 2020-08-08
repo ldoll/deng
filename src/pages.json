@@ -5,7 +5,11 @@
 			"style": {}
 		}, 
 		{
-			"path": "pages/shopList/index",
+			"path": "pages/login/index",
+			"style": {}
+		},
+		{
+			"path": "pages/goodsList/index",
 			"style": {}
 		}, 
 		{
@@ -25,20 +29,33 @@
 			"style": {}
 		}, 
 		{
-			"path": "pages/coupon/index",
+			"path": "pages/couponList/index",
 			"style": {}
 		}, 
 		{
-			"path": "pages/search/index",
+			"path": "pages/shopList/index",
 			"style": {}
 		}
 	],
 	"condition": { 
-		"current": 0,
-		"list": [{
+		"current": 1,
+		"list": [
+			{
 			"name": "test",
-			"path": "pages/coupon/index"
-		}]
+			"path": "pages/index/index",
+			"query":"shopId=101&type=1"
+		},
+		{
+			"name": "test2",
+			"path": "pages/confirmOrder/index",
+			"query":"shopId=101&type=1"
+		},
+		{
+			"name": "test3",
+			"path": "pages/login/index",
+			"query":"shopId=101&type=1"
+		}
+		]
 	},
 	"globalStyle": {
 		"navigationBarTextStyle": "black",
@@ -47,4 +64,5 @@
 		"backgroundColor": "#F8F8F8",
 		"navigationStyle": "custom"
 	}
+
 }
