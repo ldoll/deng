@@ -2,7 +2,7 @@
     <view class="body">
         <view class="cu-list menu-avatar">
             <view class="cu-item">
-                <view :style="'background-image:url(' + item.logo + ');'" class="cu-avatar xl radius"></view>
+                <view :style="'background-image:url(https:' + item.logo + ');'" class="cu-avatar xl radius"></view>
                 <view class="content flex-sub margin-left">
                     <view class="text-black text-bold "><view class="text-cut">{{item.name}}</view></view>
                     <view class="text-gray text-xs">

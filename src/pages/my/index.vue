@@ -9,8 +9,8 @@
                 <view class="cu-avatar round lg">
                     <image :src="userInfo.userInfo.avatarUrl" style="height: 100%; border-radius: 5000upx;"></image>
                 </view>
-                <view class="content">
-                    <view class="text-white title">Hello,{{userInfo.userInfo.nickName}}</view>
+                <view @click="nologin" data-type="1" class="content">
+                    <view class="text-white title">{{nickName}}</view>
                     <view class="text-white text-sm">点餐排队更高效</view>
                 </view>
                 <view class="rightRadius">
@@ -48,7 +48,7 @@
         </view>
         <!-- 退出登录 -->
         <view class="padding-lr-xl  margin-xl ">
-            <view @click="nologin" class="bg-white text-df padding-tb-sm flex align-center text-center"><text class="text-black flex-sub">退出登录</text></view>
+            <view @click="nologin" class="bg-white text-df padding-tb-sm flex align-center text-center"><text class="text-black flex-sub">{{isLogin ? "退出登录" : "立即登录"}}</text></view>
         </view>
         <view class="cu-tabbar-height"></view>
         <!-- 底部 -->
@@ -114,22 +114,33 @@ export default {
                     type: 'image',
                     url: 'https://ossweb-img.qq.com/images/lol/web201310/skin/big37006.jpg'
                 }
-            ]
+            ],
+            isLogin: false,
         };
+    },
+    computed: {
+        nickName() {
+            if (this.isLogin) {
+                return 'hello,' + this.userInfo.userInfo.nickName;
+            } else {
+                return '请登录';
+            }
+        },
     },
     onLoad() {
         const self = this;
-        try {
-            const wxInfo = uni.getStorageSync('wxInfo');
-            if (wxInfo) {
-                self.userInfo = wxInfo;
-            }
-        } catch (e) {
-            console.log(e);
+        const wxInfo = uni.getStorageSync('wxInfo');
+        if (wxInfo) {
+            self.isLogin = true;
+            self.userInfo = wxInfo;
         }
     },
     methods: {
-        nologin() {
+        nologin(e) {
+            const type = e.currentTarget.dataset.type;
+            if (type === '1' && this.isLogin) {
+                return;
+            }
             uni.removeStorageSync('userInfo');
             uni.removeStorageSync('wxInfo');
             uni.redirectTo({ url: '/pages/login/index' });

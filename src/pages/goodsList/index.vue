@@ -80,7 +80,8 @@ export default {
                 num: 0,
                 list: [],
                 money: '0'
-            }
+            },
+            userInfo: {},
         };
     },
     onLoad(option) {
@@ -89,10 +90,8 @@ export default {
             mask: true
         });
         console.log('option', option);
+        this.userInfo = uni.getStorageSync('userInfo');
         this.init(option);
-    },
-    onReady() {
-        console.log(this.StatusBar, this.CustomBar, '...StatusBar');
     },
     computed: {
         topx() {
@@ -229,51 +228,71 @@ export default {
             const type = e.currentTarget.dataset.type;
             const shopId = this.currShop.id;
             uni.setStorageSync(`goodsList`, this.orderList);
-            if (this.currShop.way === 1) { // 点单
+            if (type === 1 && this.currShop.way !== 2) {
                 // 直接取号
-                if (type === 2) {
+                this.getMark();
+
+            } else if (type === 2 && this.currShop.way !== 1) {
+                // 排队取号
+                if (this.orderList.num === 0) {
                     uni.showToast({
                         icon: 'none',
-                        title: '不可以点单排号'
-                    });
-                    return;
-                }
-                const url = `/pages/callNumber/index?shopId=${shopId}&wait=${self.wait}`;
-                uni.navigateTo({ url });
-            } else if (this.currShop.way === 2) { // 排号
-                // 跳转确定页面
-                if (type === 1) {
-                    uni.showToast({
-                        icon: 'none',
-                        title: '不可以直接取号'
+                        title: '请先点单'
                     });
                     return;
                 }
                 uni.navigateTo({
                     url: `/pages/confirmOrder/index?shopId=${shopId}&type=${type}&wait=${self.wait}`
                 });
+            } else if (this.currShop.way === 2) {
+                uni.showToast({
+                    icon: 'none',
+                    title: '请点单排号'
+                });
             } else {
                 uni.showToast({
                     icon: 'none',
-                    title: '稍等'
+                    title: '请直接取号'
                 });
-                setTimeout(() => {
-                    uni.navigateTo({
-                        url: `/pages/confirmOrder/index?shopId=${shopId}&type=${type}&wait=${self.wait}`
-                    });
-                }, 1000);
-
             }
-            // if (this.orderList.num === 0) {
-            // 	uni.showToast({
-            // 		icon:'none',
-            // 		title: '当前状态无法叫号'
-            // 	});
-            // 	return;
-            // }
-
-
-        }
+        },
+        getMark() {
+            const self = this;
+            const shopId = this.currShop.id;
+            uni.request({
+                url: api.mark,
+                method: 'get',
+                data: {
+                    type: 3, // 1-扫码预约取号 2-店家点单取号 3-手动取号
+                    shop_id: shopId,
+                    users_id: self.userInfo.id,
+                },
+                success: res => {
+                    console.log(api.mark, res);
+                    uni.hideLoading();
+                    if (res.statusCode === 200 && res.data.code === '1000') {
+                        const mark = res.data.data.mark;
+                        const wait = res.data.data.count;
+                        const ticket = res.data.data.ticket;
+                        uni.setStorageSync('ticket', ticket);
+                        const url = `/pages/callNumber/index?shopId=${shopId}&mark=${mark}&wait=${wait}`;
+                        uni.navigateTo({ url });
+                    } else {
+                        uni.showToast({
+                            icon: 'none',
+                            title: res.data.msg || '取号失败',
+                        });
+                    }
+                },
+                error: res => {
+                    console.log('失败', res);
+                    uni.showToast({
+                        icon: 'none',
+                        title: '提交失败'
+                    });
+                }
+            });
+        },
     }
 };
 </script>

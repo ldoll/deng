@@ -9,8 +9,8 @@ export default {
     mark: `${baseUrl}mark`, // 取号
     myMark: `${baseUrl}myMark`, // 我的排号
     order: `${baseUrl}order`, // 下单
-    pay: `${baseUrl}pay`, // 支付
     myTicket: `${baseUrl}myTicket`, // 我的优惠券
     myOrder: `${baseUrl}myOrder`, // 我的订单
-    test: `${baseUrl}upay/v2/precreate`, // shouqianb
+    getTicket: `${baseUrl}getTicket`, // 获得优惠券
+    tableNum: `${baseUrl}tableNum`, // 获得座位
 };

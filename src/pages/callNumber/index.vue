@@ -12,7 +12,7 @@
             名顾客排队
         </view>
         <view class="text-white text-center padding-sm">
-            <button v-if="desk" class="cu-btn bg-green lg">{{desk}}</button>
+            <button v-if="option.desk" class="cu-btn bg-green lg">{{option.desk}}</button>
         </view>
         <!-- fixed -->
         <view class="fixed">
@@ -53,6 +53,14 @@
                             </view>
                         </view>
                     </view>
+                    <view class="price">
+                        {{ticket.price}}
+                    </view>
+                    <view class="name">
+                        {{ticket.name}}
+                    </view>
+                    <view @click="gotoCoupon" class="gotoCoupon">
+                    </view>
                 </view>
             </view>
         </view>
@@ -67,32 +75,31 @@ export default {
             PageCur: 'call',
             option: {},
             submit: '',
-            desk: '',
             finished: null,
-            gitcoupon: false,
             showModal: false,
+            userInfo: {},
+            ticket: {},
         };
     },
     onLoad(option) {
+        uni.showLoading({
+            title: '加载中'
+        });
         const self = this;
-        // uni.showLoading({
-        // 	title: '加载中',
-        // });
         self.option = option;
-        if (option.shopId) {
-            self.desk = uni.getStorageSync('desk');
-            self.gitcoupon = uni.getStorageSync('gitcoupon');
-            self.isWaiting();
+        self.userInfo = uni.getStorageSync('userInfo');
+        if (option.shopId) { //
+            // 获得订单号 获得消费券
+            // if (option.orderId) { // 有订单是等位排号的情况，要获取优惠券
+            // 	self.getTicket();
+            // } else if (option.mark) { // 是直接取号的情况，不用调接口
+            // }
+            self.showMark();
         } else {
             self.init();
         }
     },
     onReady() {
-        const self = this;
-        if (self.gitcoupon) {
-            this.showModal = true;
-            console.log('gitcoupon');
-        }
     },
     computed: {
         topx() {
@@ -100,36 +107,50 @@ export default {
         }
     },
     methods: {
+        showMark() {
+            this.ticket = uni.getStorageSync('ticket');
+            this.isWaiting();
+            this.openModal();
+            uni.hideLoading();
+        },
+        openModal() {
+            this.showModal = true;
+        },
         closeModal() {
             this.showModal = false;
+            uni.removeStorageSync('ticket');
             console.log('guan');
         },
         init() {
             const self = this;
-            uni.showLoading({
-                title: '加载中'
-            });
-            const userInfo = uni.getStorageSync('userInfo');
-            // const shop = uni.getStorageSync('shopInfo');
             uni.request({
                 url: api.myMark,
                 method: 'get',
                 data: {
-                    users_id: userInfo.id,
-                    // shop_id: shop.id,
+                    users_id: self.userInfo.id,
                 },
                 success: res => {
                     console.log(api.myMark, res);
                     uni.hideLoading();
                     if (res.statusCode === 200 && res.data.code === '1000') {
-                        // if (res.data.data.)
-                        // TODO 判断什么时候订单完成了
-                        const mark = uni.getStorageSync('mark');
+                        const wait = res.data.data.count;
+                        const resMark = res.data.data.mark;
+                        let desk = resMark.table_num;
+                        if (desk === 'undefined' || desk === 'null') {
+                            desk = null;
+                        }
+                        let letterMark = '';
+                        if (resMark.num < 100) {
+                            letterMark = resMark.letter + '0' + resMark.num;
+                        } else {
+                            letterMark = resMark.letter + resMark.num;
+                        }
                         self.option = {
-                            mark,
-                            wait: res.data.data.mark.num,
+                            desk,
+                            wait,
+                            mark: letterMark,
                         };
-                        self.desk = res.data.data.mark.table_num;
+                        console.log('self.option', self.option);
                         self.isWaiting();
                     } else {
                         uni.showToast({
@@ -184,6 +205,11 @@ export default {
             if (!this.finished) {
                 this.isFinished();
             }
+        },
+        gotoCoupon() {
+            const url = `/pages/couponList/index`;
+            uni.navigateTo({ url });
+            this.closeModal();
         }
     }
 };
@@ -218,4 +244,31 @@ export default {
   width: 100%;
   top: 20%;
 }
+
+.price {
+  position: absolute;
+  color: red;
+  top: 55%;
+  left: 41%;
+  font-size: 35upx;
+}
+
+.name {
+  position: absolute;
+  color: red;
+  top: 55%;
+  right: 16%;
+  font-size: 30upx;
+}
+
+.gotoCoupon {
+  position: absolute;
+  color: red;
+  top: 69%;
+  right: 26%;
+  width: 31%;
+  height: 70upx;
+  background: red;
+}
+
 </style>

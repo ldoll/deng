@@ -9,8 +9,8 @@
                 <!-- 绿色nav -->
                 <view class="bg-green padding radius-xl margin-lr margin-top-sm">
                     <view class="flex justify-between">
-                        <view @click="test1" class="text-cut flex-sub text-white"><text class="cuIcon-locationfill"></text>{{address}}</view>
-                        <view class="basis-10 text-right"><text @click="openscan" class="cuIcon-scan"></text></view>
+                        <view class="text-cut flex-sub text-white"><text class="cuIcon-locationfill"></text>{{address}}</view>
+                        <!-- <view class="basis-10 text-right"><text @click="openscan" class="cuIcon-scan"></text></view> -->
                     </view>
                     <view class="grid col-3 text-center padding-top-xl padding-bottom-xs">
                         <view v-for="(item,i) in nav1" :key="i" :data-type="item.img" @click="gotoOther" class="">
@@ -82,6 +82,17 @@
                 <view :class="PageCur === 'my' ? 'text-green' : 'text-gray'">我的</view>
             </view>
         </view>
+        <view :class="showModal ? 'show' : ''" class="cu-modal bottom-modal">
+            <view class="cu-dialog">
+                <view class="cu-bar bg-white">
+                    <view @tap="modalOk" class="action text-green">{{modalOkTxt}}</view>
+                    <view @tap="showModal = !showModal" class="action text-blue">取消</view>
+                </view>
+                <view class="padding-xl">
+                    {{modalTxt}}
+                </view>
+            </view>
+        </view>
     </view>
 </template>
 
@@ -133,6 +144,7 @@ export default {
                     name: '医院银行'
                 }
             ],
+            modalTxt: '',
             shopList: [],
             PageCur: 'home',
             InputBottom: 0,
@@ -152,7 +164,10 @@ export default {
             lat: '',
             lng: '',
             address: '获取定位中...',
-            rgcData: {}
+            rgcData: {},
+            showModal: false,
+            userInfo: {},
+            modalOkTxt: '',
         };
     },
     computed: {
@@ -161,84 +176,71 @@ export default {
         }
     },
     beforeCreate() {
-        const userInfo = uni.getStorageSync('userInfo');
-        if (!userInfo) {
-            uni.navigateTo({
-                url: '/pages/login/index'
-            });
-        }
     },
     onLoad() {
         uni.showLoading({
             title: '加载中'
         });
         const self = this;
-        let BMap = new bmap.BMapWX({
-            ak: 'u2liO8nAgvMjZSELlbYznn7KamEXuURG'
-        });
-        let fail = function(data) {
-            console.log(data);
-            uni.showToast({
-                title: '获取定位失败'
-            });
-            self.address = '获取定位失败';
-        };
-        let success = function(data) {
-            console.log('百度地图返回', data);
-            self.address = data.wxMarkerData[0].address;
-            uni.hideLoading();
-        };
-        uni.getLocation({
-            type: 'gcj02',
-            success: function (res) {
-                self.lat = res.latitude;
-                self.lng = res.longitude;
-                console.log('获取坐标', res);
-                self.init();
-                BMap.regeocoding({
-                    fail: fail,
-                    success: success,
-                    location: res.latitude	 + ',' + res.longitude
-                });
-            }
-        });
+        self.userInfo = uni.getStorageSync('userInfo');
+        self.getLocation();
 
     },
     methods: {
-        test1() {
-            console.log('test');
-            uni.request({
-                url: api.test,
-                method: 'get',
-                data: {
-                },
+        getLocation() {
+            const self = this;
+            let BMap = new bmap.BMapWX({
+                ak: 'u2liO8nAgvMjZSELlbYznn7KamEXuURG'
+            });
+            let fail = function(data) {
+                console.log(data);
+                uni.showToast({
+                    icon: 'none',
+                    title: '获取定位失败'
+                });
+                self.address = '获取定位失败';
+            };
+            let success = function(data) {
+                console.log('百度地图返回', data);
+                self.address = data.wxMarkerData[0].address;
+                uni.hideLoading();
+            };
+            uni.getLocation({
+                type: 'gcj02',
                 success: res => {
-                    console.log(api.test, res);
-                    uni.hideLoading();
-                    if (res.statusCode === 200 && res.data.code === '1000') {
-                        self.nav1[0].tag = res.data.data.ticket;
-                        self.shopList = res.data.data.shops.data;
-                    } else if (res.statusCode === 200 && res.data.code === '1001') {
-                        uni.showToast({
-                            icon: 'none',
-                            title: '登录失效'
-                        });
-                    } else {
-                        uni.showToast({
-                            icon: 'none',
-                            title: '获取数据异常'
-                        });
-                    }
+                    self.lat = res.latitude;
+                    self.lng = res.longitude;
+                    console.log('获取坐标', res);
+                    self.init();
+                    BMap.regeocoding({
+                        fail: fail,
+                        success: success,
+                        location: res.latitude	 + ',' + res.longitude
+                    });
                 },
-                error: res => {
-                    console.log('shibai', res);
+                fail: res => {
+                    console.log('获取坐标shibai', res);
+                    self.address = '获取定位失败';
                     uni.showToast({
                         icon: 'none',
-                        title: '获取数据异常'
+                        title: '获取定位失败'
                     });
+                },
+                complete: res => {
+                    console.log('获取坐标end', res);
                 }
             });
-
+        },
+        getSetting() {
+            const self = this;
+            wx.openSetting({
+                success(res) {
+                    self.showModal = false;
+                    if (res.authSetting['scope.userLocation']) {
+                        self.getLocation();
+                    }
+                }
+            });
         },
         openscan() {
             uni.scanCode({
@@ -257,12 +259,11 @@ export default {
                 title: '加载中'
             });
             const self = this;
-            const userInfo = uni.getStorageSync('userInfo');
             uni.request({
                 url: api.index,
                 method: 'get',
                 data: {
-                    users_id: userInfo.id,
+                    users_id: self.userInfo.id,
                     lat: self.lat,
                     lng: self.lng,
                 },
@@ -292,34 +293,6 @@ export default {
                     });
                 }
             });
-            // uni.request({
-            // 	url: api.allShops,
-            // 	method:'get',
-            // 	data: {
-            // 		lat: self.lat,
-            // 		lng: self.lng,
-            // 	},
-            // 	success: res => {
-            // 		//openId、或SessionKdy存储//隐藏loading
-            // 			console.log(api.allShops,res);
-            // 			uni.hideLoading();
-            // 		if (res.statusCode === 200 && res.data.code === '1000') {
-            // 			self.shopList = res.data.data.data;
-            // 		} else {
-            // 			uni.showToast({
-            // 				icon:'none',
-            // 				title: '获取周围商户列表失败'
-            // 			});
-            // 		}
-            // 	},
-            // 	error:res=>{
-            // 		console.log('shibai',res)
-            // 		uni.showToast({
-            // 			icon:'none',
-            // 			title:'获取周围商户列表失败'
-            // 		})
-            // 	}
-            // })
         },
         NavChange: function(e) {
             const cur = e.currentTarget.dataset.cur;
@@ -341,8 +314,28 @@ export default {
         InputBlur(e) {
             this.InputBottom = 0;
         },
+        modalOk() {
+            if (this.modalOkTxt === '设置') {
+                this.getSetting();
+            } else {
+                uni.navigateTo({
+                    url: '/pages/login/index'
+                });
+            }
+        },
         gotoShop(e) {
             const self = this;
+            if (!this.lat) {
+                this.modalTxt = '无法获得附近商户信息，请打开定位权限';
+                this.modalOkTxt = '设置';
+                this.showModal = true;
+                return;
+            } else if (!this.userInfo) {
+                this.modalTxt = '当前没有登录，无法获取数据，是否立即登录？';
+                this.modalOkTxt = '登录';
+                this.showModal = true;
+                return;
+            }
             const address = `?lat=${self.lat}&lng=${self.lng}`;
             let type = ``;
             if (e.currentTarget.dataset.type) {
@@ -352,6 +345,11 @@ export default {
             uni.navigateTo({ url });
         },
         gotoGoods(id) {
+            // if (!this.userInfo) {
+            // 	this.modalTxt = '当前没有登录，无法获取数据，是否立即登录？'
+            // 	this.showModal = true;
+            //     return;
+            // }
             uni.navigateTo({
                 url: `/pages/goodsList/index?shopId=${id}`
             });

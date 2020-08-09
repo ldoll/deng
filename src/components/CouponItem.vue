@@ -2,7 +2,7 @@
     <view class="body">
         <view class="cu-list menu-avatar">
             <view class="cu-item">
-                <view class="cu-avatar radius" style="background-image: url(https://ossweb-img.qq.com/images/lol/img/champion/Morgana.png);"></view>
+                <view :style="'background-image:url(https:' + item.logo + ');'" class="cu-avatar radius"></view>
                 <view class="content">
                     <view class="text-black text-bold">
                         <view class="text-cut">{{item.name}}</view>

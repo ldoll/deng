@@ -11,6 +11,7 @@ export default {
         switch (type) {
             case 1: return '点单';
             case 2: return '排号';
+            case 3: return '点单排号';
 
         }
     }

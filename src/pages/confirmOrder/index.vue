@@ -67,7 +67,8 @@ export default {
             desk: '',
             option: {},
             userInfo: {},
-            deskList: ['1号桌', '2号桌', '3号桌']
+            deskList: [],
+            provider: '',
         };
     },
     onLoad(option) {
@@ -78,58 +79,39 @@ export default {
         self.option = option;
         self.orderList = uni.getStorageSync('goodsList');
         self.userInfo = uni.getStorageSync('userInfo');
+        uni.getProvider({
+            service: 'oauth',
+            success: function(res) {
+                console.log('getProvider:', res);
+                self.provider = res.provider[0];
+            }
+        });
+        self.init();
     },
     onReady() {
     },
     methods: {
-        PickerChange(e) {
-            this.deskIndex = e.detail.value; // 第几项
-            this.desk = this.deskList[e.detail.value];
+        init() {
+            this.getTable();
         },
-        textareaAInput(e) {
-            this.orderList.detail = e.target.value;
-        },
-        gotoCallNumber() {
-            const self = this;
-            if (!self.deskIndex) {
-                uni.showToast({
-                    title: '请选择座号',
-                    icon: 'none',
-                });
-                return;
-            }
+        getTable() {
             uni.showLoading({
-                title: '提交中'
+                title: '加载中',
             });
-            uni.setStorageSync('desk', self.desk);
-            // 下单 支付 叫号
-            // self.getMark();
-            self.postOrder();
-            // self.postPay();
-        },
-        postPay() {
             const self = this;
-            uni.showLoading({
-                title: '提交中'
-            });
             uni.request({
-                url: api.pay,
-                method: 'post',
+                url: api.tableNum,
+                method: 'get',
                 data: {
                     shop_id: self.option.shopId,
-                    users_id: self.userInfo.id,
-                    money: Number(self.orderList.money),
                 },
                 success: res => {
-                    console.log(api.pay, res);
+                    console.log(api.tableNum, res);
                     uni.hideLoading();
                     if (res.statusCode === 200 && res.data.code === '1000') {
-                        self.getMark();
-                        // const mark = res.data.data;
-                        // uni.setStorageSync('mark',mark);
-                        // uni.setStorageSync('gitcoupon',mark);
-                        // const url = `/pages/callNumber/index?shopId=${self.option.shopId}&mark=${mark}&wait=${self.option.wait}`;
-                        // uni.navigateTo({ url });
+                        const list = [];
+                        res.data.data.forEach(item => { list.push(item.table_num) });
+                        self.deskList = [...list];
                     } else {
                         uni.showToast({
                             icon: 'none',
@@ -147,6 +129,28 @@ export default {
             });
 
         },
+        PickerChange(e) {
+            this.deskIndex = e.detail.value; // 第几项
+            this.desk = this.deskList[e.detail.value];
+        },
+        textareaAInput(e) {
+            this.orderList.detail = e.target.value;
+        },
+        gotoCallNumber() {
+            const self = this;
+            if (!self.deskIndex) {
+                uni.showToast({
+                    title: '请选择桌号',
+                    icon: 'none',
+                });
+                return;
+            }
+            uni.showLoading({
+                title: '提交中'
+            });
+            // 预下单 支付 获取优惠券
+            self.postOrder();
+        },
         postOrder() {
             const self = this;
             uni.showLoading({
@@ -161,27 +165,27 @@ export default {
                 });
             });
             console.log('product', product);
+            const orderInfo =  {
+                product, // 二维数组中须包括以下字段：id：产品id，price：产品价格，count：产品数量
+                shop_id: self.option.shopId,
+                users_id: self.userInfo.id,
+                money: Number(self.orderList.money),
+                detail: self.orderList.detail,
+                ticket_id: null,
+            };
             uni.request({
                 url: api.order,
                 method: 'post',
-                data: {
-                    product, // 二维数组中须包括以下字段：id：产品id，price：产品价格，count：产品数量
-                    shop_id: self.option.shopId,
-                    users_id: self.userInfo.id,
-                    money: Number(self.orderList.money),
-                    detail: self.orderList.detail,
-                    ticket_id: null,
-                },
+                data: orderInfo,
                 success: res => {
                     console.log(api.order, res);
                     uni.hideLoading();
                     if (res.statusCode === 200 && res.data.code === '1000') {
-                        self.postPay();
-                        // const mark = res.data.data;
-                        // uni.setStorageSync('mark',mark);
-                        // uni.setStorageSync('gitcoupon',mark);
-                        // const url = `/pages/callNumber/index?shopId=${self.option.shopId}&mark=${mark}&wait=${self.option.wait}`;
-                        // uni.navigateTo({ url });
+                        const info = JSON.parse(res.data.data.data);
+                        const orderId = res.data.data.order_id;
+                        const mark = res.data.data.mark;
+                        console.log('payinfo', info);
+                        self.pay(info, orderInfo, orderId, mark);
                     } else {
                         uni.showToast({
                             icon: 'none',
@@ -198,26 +202,53 @@ export default {
                 },
             });
         },
-        getMark() {
+        pay(info, orderInfo, orderId, mark) {
+            const self = this;
+            const { nonceStr, paySign, signType, timeStamp } = info.biz_response.data.wap_pay_request;
+            const package1 = info.biz_response.data.wap_pay_request.package;
+            uni.requestPayment({
+                provider: self.provider,
+                orderInfo,
+                timeStamp,
+                nonceStr,
+                package: package1,
+                signType,
+                paySign,
+                success: res => {
+                    console.log('成功', res);
+                    self.getTicket(orderId, mark);
+                },
+                fail: res => {
+                    console.log('失败', res);
+                    uni.showToast({
+                        icon: 'none',
+                        title: '提交失败'
+                    });
+                },
+                complete: res => {
+                    console.log('结束', res);
+                }
+            });
+        },
+        getTicket(orderId, mark) {
+            uni.showLoading({
+                title: '加载中'
+            });
             const self = this;
             uni.request({
-                url: api.mark,
+                url: api.getTicket,
                 method: 'get',
                 data: {
-                    type: self.option.type, // 1-扫码预约取号 2-店家点单取号 3-手动取号
-                    shop_id: self.option.shopId,
                     users_id: self.userInfo.id,
-                    table: self.desk
-                    // count: self.lng, // 人数
+                    order_id: orderId,
                 },
                 success: res => {
-                    console.log(api.mark, res);
+                    console.log(api.getTicket, res);
                     uni.hideLoading();
                     if (res.statusCode === 200 && res.data.code === '1000') {
-                        const mark = res.data.data;
-                        uni.setStorageSync('mark', mark);
-                        uni.setStorageSync('gitcoupon', mark);
-                        const url = `/pages/callNumber/index?shopId=${self.option.shopId}&mark=${mark}&wait=${self.option.wait}`;
+                        const ticket = res.data.data;
+                        uni.setStorageSync('ticket', ticket);
+                        const url = `/pages/callNumber/index?shopId=${self.option.shopId}&mark=${mark}&desk=${self.desk}&wait=${self.option.wait}`;
                         uni.navigateTo({ url });
                     } else {
                         uni.showToast({
@@ -236,6 +267,7 @@ export default {
             });
 
         },
+
     }
 };
 </script>
