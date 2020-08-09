@@ -272,10 +272,11 @@ export default {
                     uni.hideLoading();
                     if (res.statusCode === 200 && res.data.code === '1000') {
                         const mark = res.data.data.mark;
+                        const markId = res.data.data.mark_id;
                         const wait = res.data.data.count;
                         const ticket = res.data.data.ticket;
                         uni.setStorageSync('ticket', ticket);
-                        const url = `/pages/callNumber/index?shopId=${shopId}&mark=${mark}&wait=${wait}`;
+                        const url = `/pages/callNumber/index?shopId=${shopId}&mark=${mark}&markId=${markId}&wait=${wait}`;
                         uni.navigateTo({ url });
                     } else {
                         uni.showToast({

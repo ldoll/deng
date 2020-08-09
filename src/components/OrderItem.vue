@@ -24,7 +24,7 @@
         </view>
         <view class="bg-white">
             <view class="flex  justify-end text-right padding-lr-sm padding-bottom-sm solid-bottom margin-left">
-                <view v-if="item.status !== 1" class="bg-green radius padding-lr-sm padding-tb-xs">排号中</view>
+                <view @click="gotoNum" v-if="item.order_status !== 1" class="bg-green radius padding-lr-sm padding-tb-xs">排号中</view>
                 <view v-else class="bg-gray radius padding-lr-sm padding-tb-xs">已完成</view>
             </view>
         </view>
@@ -58,7 +58,9 @@ export default {
         }
     },
     methods: {
-
+        gotoNum(e) {
+            this.$emit('gotoNum', this.item);
+        },
 
     }
 };

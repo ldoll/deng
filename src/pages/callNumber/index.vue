@@ -19,7 +19,7 @@
             <view class="flex justify-end padding margin text-center">
                 <view @click="onSubmit">
                     <view class="cu-avatar lg bg-gray round">
-                        <text :class="[finished ? &quot;text-white&quot; : &quot;text-green&quot;]" class="lg cuIcon-check"></text>
+                        <text :class="finished ? 'text-white' : 'text-green'" class="lg cuIcon-check"></text>
                         <view v-if="!finished" class="cu-tag sm badge"></view>
                     </view>
                     <view>{{submit}}</view>
@@ -43,9 +43,11 @@
             </view>
         </view>
         <!-- modal -->
-        <view :class="showModal ? 'show' : ''" class="cu-modal">
+        <view :class="showModal ? 'show' : ''" :style="{ top: CustomBar + 'px' }" class="cu-modal">
             <view class="cu-dialog">
                 <view class="bg-img" style="background-image: url('https://wait.youngotemai.com/img/mini/mm.png'); height: 100%;">
+                    <!-- <view style="height: 100%;"> -->
+                    <!-- <image src="https://wait.youngotemai.com/img/mini/mm.png" mode='aspectFit' /> -->
                     <view class="xxPositon">
                         <view class="cu-bar justify-end text-white">
                             <view @click="closeModal" class="action">
@@ -56,7 +58,7 @@
                     <view class="price">
                         {{ticket.price}}
                     </view>
-                    <view class="name">
+                    <view class="name text-cut">
                         {{ticket.name}}
                     </view>
                     <view @click="gotoCoupon" class="gotoCoupon">
@@ -79,6 +81,8 @@ export default {
             showModal: false,
             userInfo: {},
             ticket: {},
+            StatusBar: this.StatusBar,
+            CustomBar: this.CustomBar
         };
     },
     onLoad(option) {
@@ -98,6 +102,11 @@ export default {
         } else {
             self.init();
         }
+        // self.ticket = {
+        //     price: '5.00',
+        //     name: '果实餐品果实餐品'
+        // };
+        // self.openModal();
     },
     onReady() {
     },
@@ -145,10 +154,12 @@ export default {
                         } else {
                             letterMark = resMark.letter + resMark.num;
                         }
+                        const markId = resMark.id;
                         self.option = {
                             desk,
                             wait,
                             mark: letterMark,
+                            markId,
                         };
                         console.log('self.option', self.option);
                         self.isWaiting();
@@ -203,8 +214,43 @@ export default {
         },
         onSubmit() {
             if (!this.finished) {
-                this.isFinished();
+
+                this.getConfirm();
             }
+        },
+        getConfirm() {
+            const self = this;
+            uni.showLoading({
+                title: '提交中'
+            });
+            uni.request({
+                url: api.confirm,
+                method: 'get',
+                data: {
+                    users_id: self.userInfo.id,
+                    mark_id: self.option.markId,
+                },
+                success: res => {
+                    console.log(api.confirm, res);
+                    uni.hideLoading();
+                    if (res.statusCode === 200 && res.data.code === '1000') {
+                        this.isFinished();
+                    } else {
+                        uni.showToast({
+                            icon: 'none',
+                            title: '加载失败'
+                        });
+                    }
+                },
+                error: res => {
+                    console.log('失败', res);
+                    uni.showToast({
+                        icon: 'none',
+                        title: '加载失败'
+                    });
+                }
+            });
+
         },
         gotoCoupon() {
             const url = `/pages/couponList/index`;
@@ -237,18 +283,23 @@ export default {
 
 .bg-img {
   background-size: contain;
+  background-position: top;
+  position: relative;
+  margin-top: 30%;
 }
 
 .xxPositon {
   position: absolute;
   width: 100%;
-  top: 20%;
+  top: 5%;
 }
 
 .price {
   position: absolute;
   color: red;
-  top: 55%;
+  top: 490upx;
+
+  /*  top: 33.5%; */
   left: 41%;
   font-size: 35upx;
 }
@@ -256,19 +307,20 @@ export default {
 .name {
   position: absolute;
   color: red;
-  top: 55%;
-  right: 16%;
-  font-size: 30upx;
+  top: 490upx;
+  left: 68%;
+  font-weight: bold;
+  font-size: 25upx;
+  width: 125upx;
 }
 
 .gotoCoupon {
   position: absolute;
   color: red;
-  top: 69%;
+  top: 650upx;
   right: 26%;
   width: 31%;
   height: 70upx;
-  background: red;
 }
 
 </style>

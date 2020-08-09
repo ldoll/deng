@@ -183,9 +183,10 @@ export default {
                     if (res.statusCode === 200 && res.data.code === '1000') {
                         const info = JSON.parse(res.data.data.data);
                         const orderId = res.data.data.order_id;
-                        const mark = res.data.data.mark;
+                        const mark = res.data.data.mark.num;
+                        const markId = res.data.data.mark.id;
                         console.log('payinfo', info);
-                        self.pay(info, orderInfo, orderId, mark);
+                        self.pay(info, orderInfo, orderId, mark, markId);
                     } else {
                         uni.showToast({
                             icon: 'none',
@@ -202,7 +203,7 @@ export default {
                 },
             });
         },
-        pay(info, orderInfo, orderId, mark) {
+        pay(info, orderInfo, orderId, mark, markId) {
             const self = this;
             const { nonceStr, paySign, signType, timeStamp } = info.biz_response.data.wap_pay_request;
             const package1 = info.biz_response.data.wap_pay_request.package;
@@ -216,7 +217,7 @@ export default {
                 paySign,
                 success: res => {
                     console.log('成功', res);
-                    self.getTicket(orderId, mark);
+                    self.getTicket(orderId, mark, markId);
                 },
                 fail: res => {
                     console.log('失败', res);
@@ -230,7 +231,7 @@ export default {
                 }
             });
         },
-        getTicket(orderId, mark) {
+        getTicket(orderId, mark, markId) {
             uni.showLoading({
                 title: '加载中'
             });
@@ -248,7 +249,7 @@ export default {
                     if (res.statusCode === 200 && res.data.code === '1000') {
                         const ticket = res.data.data;
                         uni.setStorageSync('ticket', ticket);
-                        const url = `/pages/callNumber/index?shopId=${self.option.shopId}&mark=${mark}&desk=${self.desk}&wait=${self.option.wait}`;
+                        const url = `/pages/callNumber/index?shopId=${self.option.shopId}&mark=${mark}&markId=${markId}&desk=${self.desk}&wait=${self.option.wait}`;
                         uni.navigateTo({ url });
                     } else {
                         uni.showToast({

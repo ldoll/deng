@@ -3,7 +3,7 @@
         <cu-custom :isBack="true" class="text-bold" bgColor="bg-green"><block slot="backText"></block><block slot="content">订单</block></cu-custom>
         <!-- <OrderItem  status='wait'/>
 		<OrderItem status='ok'/> -->
-        <view v-for="(item,i) in list" :key="i"><OrderItem :item="item" /></view>
+        <view v-for="(item,i) in list" :key="i"><OrderItem :item="item" @gotoNum="gotoNum" /></view>
 
         <view class="flex justify-center margin-top padding bg-white"><text class="text-gray text-sm">没有更多</text></view>
     </view>
@@ -44,7 +44,6 @@ export default {
                     if (res.statusCode === 200 && res.data.code === '1000') {
                         const list = res.data.data;
                         self.list = [...list];
-                        console.log(self.list);
                     } else if (res.statusCode === 200 && res.data.code === '1001') {
                         uni.showToast({
                             icon: 'none',
@@ -66,6 +65,11 @@ export default {
                 }
             });
 
+        },
+        gotoNum(item) {
+            console.log('点击了', item);
+            // const url = `/pages/callNumber/index?shopId=${self.option.shopId}&mark=${mark}&markId=${markId}&desk=${self.desk}&wait=${self.option.wait}`;
+            // uni.navigateTo({ url });
         },
 
     }

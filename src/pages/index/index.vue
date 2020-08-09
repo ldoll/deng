@@ -356,23 +356,22 @@ export default {
         },
         gotoOther(e) {
             let url;
-            if (e.currentTarget.dataset.type === 'coupon') {
+            const type = e.currentTarget.dataset.type;
+            if (type === 'coupon') {
                 url = `/pages/couponList/index`;
                 uni.navigateTo({ url });
-            } else if (e.currentTarget.dataset.type === 'freeSettleIn') {
-                // uni.navigateToMiniProgram({
-                // 	appId: '',
-                // 	  path: 'pages/index/index?id=123',
-                // 	  extraData: {
-                // 	    'data1': 'test'
-                // 	  },
-                // 	  success(res) {
-                // 	    // 打开成功
-                // 	  }
-                // })
-                console.log('goto1');
-            } else if (e.currentTarget.dataset.type === 'store') {
-                console.log('goto2');
+            } else if (type === 'freeSettleIn' || type === 'store') {
+                uni.navigateToMiniProgram({
+                    appId: 'wx1add8343e9096835',
+                    // path: 'pages/index/index',
+                    // extraData: {
+                    //   'data1': 'test'
+                    // },
+                    success: res => {
+                        console.log('成功', res);
+                        // 打开成功
+                    }
+                });
             }
         }
     }

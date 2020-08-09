@@ -13,4 +13,5 @@ export default {
     myOrder: `${baseUrl}myOrder`, // 我的订单
     getTicket: `${baseUrl}getTicket`, // 获得优惠券
     tableNum: `${baseUrl}tableNum`, // 获得座位
+    confirm: `${baseUrl}confirm`, // 完成订单
 };

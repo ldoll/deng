@@ -20,15 +20,13 @@
             </view>
         </scroll-view>
         <scroll-view :style="'height:calc(100vh - env(safe-area-inset-bottom) - ' + topx + 'px)'" class="" scroll-y scroll-with-animation>
-            <view v-if="list.length > 0 && (item.type === TabType[TabCur].type || TabCur === 0)">
-                <view
-                    v-for="(item, index) in list"
-
-                    :key="index"
-                    :data-id="index"
-                    @click="CheckboxChange"
-                    class="flex align-center margin-sm justify-between"
-                >
+            <view
+                v-for="(item, index) in list"
+                :key="index"
+                :data-id="index"
+                @click="CheckboxChange"
+            >
+                <view v-if="list.length > 0 && (item.type === TabType[TabCur].type || TabCur === 0)" class="flex align-center margin-sm justify-between">
                     <view class="basis-5 margin-right-sm">
                         <view class="cu-avatar sm round bg-transparent">
                             <image v-if="item.checked === true" style="height: 100%;" src="/static/icon/chooseActive.png"></image>
@@ -64,7 +62,7 @@
                     抵扣后共计
                     <text class="padding-left-xs">{{money}}</text>
                 </view>
-                <view class="basis-25" style="line-height: 1;"><view class="bg-white text-green text-bold  padding-tb-sm radius-sl text-center">去支付</view></view>
+                <view class="basis-25" style="line-height: 1;"><view @click="gotopay" class="bg-white text-green text-bold  padding-tb-sm radius-sl text-center">去支付</view></view>
             </view>
         </view>
     </view>
@@ -80,7 +78,6 @@ export default {
     data() {
         return {
             copyright: '*本券由商家联合ALLELE等位发放，使用请和店家确认',
-            href: 'https://uniapp.dcloud.io/component/README?id=uniui',
             TabCur: 0,
             list: [],
             checkIndex: '',
@@ -93,11 +90,11 @@ export default {
                 },
                 {
                     name: '美食券',
-                    type: 'foods'
+                    type: 1
                 },
                 {
                     name: '生活券',
-                    type: 'life'
+                    type: '1'
                 },
                 {
                     name: '教育券',
@@ -211,7 +208,90 @@ export default {
             money = Number(inputMoney - couponMoney).toFixed(2);
             this.money = money > 0 ? money : 0;
             console.log(inputMoney, couponMoney, this.money, '---money');
-        }
+        },
+        gotopay() {
+            // 预下单 支付
+            // self.postOrder();
+        },
+        postOrder() {
+            const self = this;
+            uni.showLoading({
+                title: '提交中'
+            });
+            const product = [];
+            self.orderList.list.forEach(item => {
+                product.push({
+                    id: item.id,
+                    price: Number(item.price),
+                    count: item.num,
+                });
+            });
+            console.log('product', product);
+            const orderInfo =  {
+                product, // 二维数组中须包括以下字段：id：产品id，price：产品价格，count：产品数量
+                shop_id: self.option.shopId,
+                users_id: self.userInfo.id,
+                money: Number(self.orderList.money),
+                detail: self.orderList.detail,
+                ticket_id: null,
+            };
+            uni.request({
+                url: api.order,
+                method: 'post',
+                data: orderInfo,
+                success: res => {
+                    console.log(api.order, res);
+                    uni.hideLoading();
+                    if (res.statusCode === 200 && res.data.code === '1000') {
+                        const info = JSON.parse(res.data.data.data);
+                        const orderId = res.data.data.order_id;
+                        const mark = res.data.data.mark;
+                        console.log('payinfo', info);
+                        self.pay(info, orderInfo, orderId, mark);
+                    } else {
+                        uni.showToast({
+                            icon: 'none',
+                            title: '提交失败'
+                        });
+                    }
+                },
+                error: res => {
+                    console.log('失败', res);
+                    uni.showToast({
+                        icon: 'none',
+                        title: '提交失败'
+                    });
+                },
+            });
+        },
+        pay(info, orderInfo, orderId, mark) {
+            const self = this;
+            const { nonceStr, paySign, signType, timeStamp } = info.biz_response.data.wap_pay_request;
+            const package1 = info.biz_response.data.wap_pay_request.package;
+            uni.requestPayment({
+                provider: self.provider,
+                orderInfo,
+                timeStamp,
+                nonceStr,
+                package: package1,
+                signType,
+                paySign,
+                success: res => {
+                    console.log('成功', res);
+                    self.getTicket(orderId, mark);
+                },
+                fail: res => {
+                    console.log('失败', res);
+                    uni.showToast({
+                        icon: 'none',
+                        title: '提交失败'
+                    });
+                },
+                complete: res => {
+                    console.log('结束', res);
+                }
+            });
+        },
     }
 };
 </script>
