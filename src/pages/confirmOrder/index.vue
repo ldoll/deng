@@ -35,10 +35,10 @@
             </viwe>
         </view>
         <view class="margin-top margin-lr-sm padding-lr-sm bg-white">
-            <view class="cu-form-group solid-bottom">
+            <view v-if="deskList.length > 0" class="cu-form-group solid-bottom">
                 <view class="title text-bold text-df">您的桌号</view>
                 <picker :value="deskIndex" :range="deskList" @change="PickerChange">
-                    <view :class="deskIndex !== '' ? '' : 'text-gray'" class="picker">{{deskIndex !== '' ? deskList[deskIndex] : '必选'}}</view>
+                    <view :class="deskIndex !== '' ? '' : 'text-gray'" class="picker">{{deskIndex !== '' ? deskList[deskIndex] : needDesk}}</view>
                 </picker>
             </view>
         </view>
@@ -69,6 +69,7 @@ export default {
             userInfo: {},
             deskList: [],
             provider: '',
+            shopInfo: {},
         };
     },
     onLoad(option) {
@@ -79,6 +80,7 @@ export default {
         self.option = option;
         self.orderList = uni.getStorageSync('goodsList');
         self.userInfo = uni.getStorageSync('userInfo');
+        self.shopInfo = uni.getStorageSync('shopInfo');
         uni.getProvider({
             service: 'oauth',
             success: function(res) {
@@ -88,7 +90,17 @@ export default {
         });
         self.init();
     },
-    onReady() {
+    computed: {
+        needDesk() {
+            const self = this;
+            if (self.shopInfo.is_table === 1) {
+                return '必选';
+            } else if (self.deskList.length > 0) {
+                return '可选';
+            } else {
+                return '不选';
+            }
+        }
     },
     methods: {
         init() {
@@ -110,7 +122,9 @@ export default {
                     uni.hideLoading();
                     if (res.statusCode === 200 && res.data.code === '1000') {
                         const list = [];
-                        res.data.data.forEach(item => { list.push(item.table_num) });
+                        if (res.data.data.length > 0) {
+                            res.data.data.forEach(item => { list.push(item.table_num) });
+                        }
                         self.deskList = [...list];
                     } else {
                         uni.showToast({
@@ -138,7 +152,7 @@ export default {
         },
         gotoCallNumber() {
             const self = this;
-            if (!self.deskIndex) {
+            if (self.shopInfo.is_table === 1 && !self.deskIndex) {
                 uni.showToast({
                     title: '请选择桌号',
                     icon: 'none',
@@ -171,6 +185,7 @@ export default {
                 users_id: self.userInfo.id,
                 money: Number(self.orderList.money),
                 detail: self.orderList.detail,
+                table: self.desk,
                 ticket_id: null,
             };
             uni.request({
@@ -190,7 +205,7 @@ export default {
                     } else {
                         uni.showToast({
                             icon: 'none',
-                            title: '提交失败'
+                            title: res.data.msg
                         });
                     }
                 },
@@ -254,7 +269,7 @@ export default {
                     } else {
                         uni.showToast({
                             icon: 'none',
-                            title: '提交失败'
+                            title: res.data.msg
                         });
                     }
                 },

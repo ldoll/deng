@@ -34,7 +34,7 @@
                 interval="5000"
                 duration="500"
             >
-                <swiper-item v-for="(item, index) in swiperList" :key="index" class="radius-xl" style="overflow: hidden; width: 100%;"><image :src="item.url" class="radius-xl" style="overflow: hidden; width: 100%;"></image></swiper-item>
+                <swiper-item @click="gotoImg" :data-type="index" v-for="(item, index) in swiperList" :key="index" class="radius-xl" style="overflow: hidden; width: 100%;"><image :src="item.url" mode="" class="radius-xl" style="overflow: hidden; width: 100%; height: 200upx;"></image></swiper-item>
             </swiper>
         </view>
         <view v-for="(item,index) in nav" :key="index" :data-type="item.img" :class="index === 2 ? 'margin-top' : ''" @click="gotoOther" class="padding-left bg-white ">
@@ -70,6 +70,7 @@
 </template>
 
 <script>
+import imgBase64 from '@/common/img.js';
 export default {
     data() {
         return {
@@ -107,12 +108,12 @@ export default {
                 {
                     id: 0,
                     type: 'image',
-                    url: 'https://ossweb-img.qq.com/images/lol/web201310/skin/big84000.jpg'
+                    url: imgBase64.banner1
                 },
                 {
                     id: 1,
                     type: 'image',
-                    url: 'https://ossweb-img.qq.com/images/lol/web201310/skin/big37006.jpg'
+                    url: imgBase64.banner2
                 }
             ],
             isLogin: false,
@@ -181,6 +182,27 @@ export default {
             }
             console.log(type, url, 'tt');
             uni.navigateTo({ url });
+        },
+        gotoImg(e) {
+            const type = e.currentTarget.dataset.type;
+            console.log('跳转banner', type);
+            if (type === 0) {
+                uni.navigateToMiniProgram({
+                    appId: 'wx1add8343e9096835',
+                    success: res => {
+                        console.log('成功', res);
+                        // 打开成功
+                    }
+                });
+            } else if (type === 1) {
+                uni.navigateToMiniProgram({
+                    appId: 'wx1add8343e9096835',
+                    success: res => {
+                        console.log('成功', res);
+                        // 打开成功
+                    }
+                });
+            }
         }
     }
 };

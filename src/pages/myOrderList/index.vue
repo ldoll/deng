@@ -44,15 +44,10 @@ export default {
                     if (res.statusCode === 200 && res.data.code === '1000') {
                         const list = res.data.data;
                         self.list = [...list];
-                    } else if (res.statusCode === 200 && res.data.code === '1001') {
-                        uni.showToast({
-                            icon: 'none',
-                            title: '登录失效'
-                        });
                     } else {
                         uni.showToast({
                             icon: 'none',
-                            title: '获取数据异常'
+                            title: res.data.msg
                         });
                     }
                 },
@@ -68,8 +63,49 @@ export default {
         },
         gotoNum(item) {
             console.log('点击了', item);
-            // const url = `/pages/callNumber/index?shopId=${self.option.shopId}&mark=${mark}&markId=${markId}&desk=${self.desk}&wait=${self.option.wait}`;
-            // uni.navigateTo({ url });
+            uni.showLoading({
+                title: '加载中'
+            });
+            uni.request({
+                url: api.markInfo,
+                method: 'get',
+                data: {
+                    shop_id: item.shop_id,
+                    mark_id: item.mark_id,
+                },
+                success: res => {
+                    console.log(api.markInfo, res);
+                    uni.hideLoading();
+                    if (res.statusCode === 200 && res.data.code === '1000') {
+                        const wait = res.data.data.count;
+                        const resMark = res.data.data.mark;
+                        let desk = resMark.table_num;
+                        if (desk === 'undefined' || desk === 'null') {
+                            desk = null;
+                        }
+                        let letterMark = '';
+                        if (resMark.num < 100) {
+                            letterMark = resMark.letter + '0' + resMark.num;
+                        } else {
+                            letterMark = resMark.letter + resMark.num;
+                        }
+                        const url = `/pages/callNumber/index?shopId=${item.shop_id}&mark=${letterMark}&markId=${item.mark_id}&desk=${desk}&wait=${wait}`;
+                        uni.navigateTo({ url });
+                    } else {
+                        uni.showToast({
+                            icon: 'none',
+                            title: res.data.msg
+                        });
+                    }
+                },
+                error: res => {
+                    console.log('shibai', res);
+                    uni.showToast({
+                        icon: 'none',
+                        title: '获取数据异常'
+                    });
+                }
+            });
         },
 
     }

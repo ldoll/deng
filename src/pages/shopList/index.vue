@@ -84,22 +84,24 @@ export default {
             shopList: [],
             currShopList: [],
             inputValue: '',
+            now: '',
+            option: {},
         };
     },
     onLoad(option) {
-        uni.showLoading({
-            title: '加载中'
-        });
         const self = this;
         self.type = option.type;
+        self.option = option;
         if (option.type === 'search') {
             self.Hot = true;
             self.canBack = true;
             self.autofocus = true;
+            self.changeTitle();
+        } else {
+            self.init();
         }
-        self.changeTitle();
-        self.init(option);
-        console.log('可以返回，自动焦点', this.canBack, this.autofocus);
+        this.now = new Date().getTime();
+        console.log('是否可以返回，是否自动焦点 ', this.canBack, this.autofocus);
     },
     computed: {
         topx() {
@@ -107,14 +109,17 @@ export default {
         }
     },
     methods: {
-        init(option) {
+        init() {
+            uni.showLoading({
+                title: '加载中'
+            });
             const self = this;
             uni.request({
                 url: api.allShops,
                 method: 'get',
                 data: {
-                    lat: option.lat,
-                    lng: option.lng,
+                    lat: self.option.lat,
+                    lng: self.option.lng,
                 },
                 success: res => {
                     // openId、或SessionKdy存储//隐藏loading
@@ -123,10 +128,11 @@ export default {
                     if (res.statusCode === 200 && res.data.code === '1000') {
                         self.shopList = res.data.data.data;
                         self.changeCurrShopList();
+                        self.changeCanBack();
                     } else {
                         uni.showToast({
                             icon: 'none',
-                            title: '获取周围商户列表失败'
+                            title: res.data.msg
                         });
                     }
                 },
@@ -167,13 +173,13 @@ export default {
                 this.canBack = false;
             }
             this.title = '等位订单';
-            console.log('canback2', this.canBack);
+            console.log('获得焦点，canback', this.canBack);
         },
         changeCanBack() {
             this.Hot = false;
             this.canBack = true;
             this.changeTitle();
-            console.log('canback3', this.canBack);
+            console.log('改变canback，canback', this.canBack);
         },
         InputBlur() {
             // this.Hot = false;
@@ -198,7 +204,7 @@ export default {
             if (this.searchType === 'distance') {
                 arr = arr.sort((a, b) => a.distance - b.distance);
             } else if (this.searchType === 'wait') {
-                arr = arr.sort((a, b) => a.wait - b.wait);
+                arr = arr.sort((a, b) => a.count - b.count);
             }
             this.currShopList = [...arr];
         },
@@ -215,24 +221,44 @@ export default {
             if (this.keyWord === e.currentTarget.dataset.type) {
                 this.keyWord = '';
             } else {
+                this.now = new Date().getTime();
                 this.keyWord = e.currentTarget.dataset.type;
-                this.inputValue = e.currentTarget.dataset.type;
+                setTimeout(() => {
+                    this.inputValue = e.currentTarget.dataset.type;
+                    console.log('给input赋值', e.currentTarget.dataset.type, this.inputValue);
+                }, 200);
                 this.InputConfirm();
+                console.log('点击了keyword', this.keyWord, this.now);
             }
         },
         onKeyInput(e) {
             this.inputValue = e.target.value;
-            if (this.keyWord) {
-                this.keyWord = '';
+            const now = new Date().getTime();
+            const timelength = now - this.now;
+            console.log('输入了', e.target.value, now, timelength);
+            if (timelength > 200) {
+                if (this.keyWord) {
+                    this.keyWord = '';
+                    console.log('清空keyword');
+                }
             }
         },
         InputConfirm() {
             const self = this;
+            const keyword = self.keyWord || self.inputValue;
+            console.log('准备提交', keyword);
+            if (keyword) {
+                self.postSearch(keyword);
+            } else {
+                self.init();
+            }
+
+        },
+        postSearch(keyword) {
+            const self = this;
             uni.showLoading({
                 title: '搜索中'
             });
-            const keyword = self.keyWord || self.inputValue;
-            console.log('准备提交', keyword);
             uni.request({
                 url: api.search,
                 method: 'post',
@@ -248,11 +274,20 @@ export default {
                         this.changeCurrShopList();
                     } else {
                         uni.showToast({
-                            title: '初始化失败'
+                            icon: 'none',
+                            title: res.data.msg
                         });
                     }
+                },
+                error: res => {
+                    console.log('shibai', res);
+                    uni.showToast({
+                        icon: 'none',
+                        title: '获取数据失败'
+                    });
                 }
             });
+
         },
         gotoGoods(id) {
             uni.navigateTo({

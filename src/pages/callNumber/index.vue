@@ -92,12 +92,13 @@ export default {
         const self = this;
         self.option = option;
         self.userInfo = uni.getStorageSync('userInfo');
-        if (option.shopId) { //
-            // 获得订单号 获得消费券
-            // if (option.orderId) { // 有订单是等位排号的情况，要获取优惠券
-            // 	self.getTicket();
-            // } else if (option.mark) { // 是直接取号的情况，不用调接口
-            // }
+        if (option.shopId) {
+            // url 需要desk,wait,mark,markId,
+            // markid用于完成订单
+            this.ticket = uni.getStorageSync('ticket');
+            if (this.ticket) {
+                this.openModal();
+            }
             self.showMark();
         } else {
             self.init();
@@ -117,9 +118,7 @@ export default {
     },
     methods: {
         showMark() {
-            this.ticket = uni.getStorageSync('ticket');
             this.isWaiting();
-            this.openModal();
             uni.hideLoading();
         },
         openModal() {
@@ -166,7 +165,7 @@ export default {
                     } else {
                         uni.showToast({
                             icon: 'none',
-                            title: '加载失败'
+                            title: res.data.msg
                         });
                         self.isFinished();
                     }
@@ -238,7 +237,7 @@ export default {
                     } else {
                         uni.showToast({
                             icon: 'none',
-                            title: '加载失败'
+                            title: res.data.msg
                         });
                     }
                 },

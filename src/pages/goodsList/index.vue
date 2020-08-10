@@ -111,7 +111,6 @@ export default {
                     console.log(api.product, res);
                     uni.hideLoading();
                     if (res.statusCode === 200 && res.data.code === '1000') {
-                        uni.setStorageSync('shopInfo', res.data.data.shop); // 更新一下，以免出问题
                         self.currShop = res.data.data.shop;
                         self.wait = res.data.data.waiting;
                         // 构造数据
@@ -123,7 +122,7 @@ export default {
                     } else {
                         uni.showToast({
                             icon: 'none',
-                            title: '获取数据异常'
+                            title: res.data.msg
                         });
                     }
                 },
@@ -281,7 +280,7 @@ export default {
                     } else {
                         uni.showToast({
                             icon: 'none',
-                            title: res.data.msg || '取号失败',
+                            title: res.data.msg,
                         });
                     }
                 },

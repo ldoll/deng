@@ -46,10 +46,10 @@
                         :autoplay="true"
                         class="swiper"
                         style="overflow: hidden; min-height: 200upx; height: 200upx;"
-                        interval="5000"
+                        interval="50000"
                         duration="500"
                     >
-                        <swiper-item v-for="(item, index) in swiperList" :key="index" class="radius-xl" style="overflow: hidden; width: 100%;"><image :src="item.url" class="radius-xl" style="overflow: hidden; width: 100%;"></image></swiper-item>
+                        <swiper-item @click="gotoImg" :data-type="index" v-for="(item, index) in swiperList" :key="index" class="radius-xl" style="overflow: hidden; width: 100%;"><image :src="item.url" mode="" class="radius-xl" style="overflow: hidden; width: 100%; height: 200upx;"></image></swiper-item>
                     </swiper>
                 </view>
                 <!-- 附近商家 -->
@@ -100,6 +100,7 @@
 import ShopItem from '@/components/ShopItem';
 import bmap from '@/common/libs/bmap-wx.min.js';
 import api from '@/common/api.js';
+import imgBase64 from '@/common/img.js';
 export default {
     components: {
         ShopItem
@@ -152,12 +153,12 @@ export default {
                 {
                     id: 0,
                     type: 'image',
-                    url: 'https://ossweb-img.qq.com/images/lol/web201310/skin/big84000.jpg'
+                    url: imgBase64.banner1
                 },
                 {
                     id: 1,
                     type: 'image',
-                    url: 'https://ossweb-img.qq.com/images/lol/web201310/skin/big37006.jpg'
+                    url: imgBase64.banner2
                 }
             ],
             markers: [],
@@ -273,15 +274,10 @@ export default {
                     if (res.statusCode === 200 && res.data.code === '1000') {
                         self.nav1[0].tag = res.data.data.ticket;
                         self.shopList = res.data.data.shops.data;
-                    } else if (res.statusCode === 200 && res.data.code === '1001') {
-                        uni.showToast({
-                            icon: 'none',
-                            title: '登录失效'
-                        });
                     } else {
                         uni.showToast({
                             icon: 'none',
-                            title: '获取数据异常'
+                            title: res.data.msg
                         });
                     }
                 },
@@ -367,6 +363,27 @@ export default {
                     // extraData: {
                     //   'data1': 'test'
                     // },
+                    success: res => {
+                        console.log('成功', res);
+                        // 打开成功
+                    }
+                });
+            }
+        },
+        gotoImg(e) {
+            const type = e.currentTarget.dataset.type;
+            console.log('跳转banner', type);
+            if (type === 0) {
+                uni.navigateToMiniProgram({
+                    appId: 'wx1add8343e9096835',
+                    success: res => {
+                        console.log('成功', res);
+                        // 打开成功
+                    }
+                });
+            } else if (type === 1) {
+                uni.navigateToMiniProgram({
+                    appId: 'wx1add8343e9096835',
                     success: res => {
                         console.log('成功', res);
                         // 打开成功

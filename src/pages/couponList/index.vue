@@ -36,7 +36,7 @@
                     <view class="flex-sub margin-right"><CouponItem :item="item" /></view>
                 </view>
             </view>
-            <view v-if="list.length === 0" class="flex justify-center margin-top padding bg-white"><text class="text-gray text-sm">没有更多</text></view>
+            <view v-if="list.length === 0 || couponAmount === 0" class="flex justify-center margin-top padding bg-white"><text class="text-gray text-sm">没有更多</text></view>
         </scroll-view>
 
         <!-- fixed -->
@@ -94,15 +94,15 @@ export default {
                 },
                 {
                     name: '生活券',
-                    type: '1'
+                    type: 2
                 },
                 {
                     name: '教育券',
-                    type: 'study'
+                    type: 3
                 },
                 {
                     name: '其他',
-                    type: 'other'
+                    type: 4
                 }
             ]
         };
@@ -127,7 +127,7 @@ export default {
             } else {
                 return this.list.filter(item => item.type === this.TabType[this.TabCur].type).length;
             }
-        }
+        },
     },
     methods: {
         init() {
@@ -149,15 +149,10 @@ export default {
                         });
                         self.list = [...list];
                         console.log(self.list);
-                    } else if (res.statusCode === 200 && res.data.code === '1001') {
-                        uni.showToast({
-                            icon: 'none',
-                            title: '登录失效'
-                        });
                     } else {
                         uni.showToast({
                             icon: 'none',
-                            title: '获取数据异常'
+                            title: res.data.msg
                         });
                     }
                 },
@@ -251,7 +246,7 @@ export default {
                     } else {
                         uni.showToast({
                             icon: 'none',
-                            title: '提交失败'
+                            title: res.data.msg
                         });
                     }
                 },
