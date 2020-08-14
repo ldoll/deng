@@ -13,26 +13,26 @@
             </text>
         </view>
         <view class="padding-lr-sm  margin-lr-sm margin-top-sm bg-white ">
-            <viwe class="solid-bottom flex padding-tb-sm"><text class="text-lg text-bold text-black">点单说明</text></viwe>
+            <view class="solid-bottom flex padding-tb-sm"><text class="text-lg text-bold text-black">点单说明</text></view>
         </view>
         <!-- 商品 -->
         <view class="padding-lr-sm padding-tb-xs margin-lr-sm bg-white">
-            <viwe v-for="(item, index) in orderList.list" :key="index" class="flex padding-tb-xs text-sm">
+            <view v-for="(item, index) in orderList.list" :key="index" class="flex padding-tb-xs text-sm">
                 <text class="basis-lg text-black">{{item.name}}</text>
                 <text class="basis-xs  text-right text-gray">X{{item.num}}</text>
                 <text class="basis-xs text-right text-black">￥{{item.price}}</text>
-            </viwe>
+            </view>
         </view>
         <!-- 小计 -->
         <view class="padding-lr-sm  margin-lr-sm bg-white flex justify-end">
-            <viwe class="solid-top flex-sub text-right  text-black padding-tb-sm">
+            <view class="solid-top flex-sub text-right  text-black padding-tb-sm">
                 <text class="text-sm text-bold">
                     共计
                     <text class="">{{orderList.num}}</text>
                     个商品，小记￥
                     <text class=" text-xxl">{{orderList.money}}</text>
                 </text>
-            </viwe>
+            </view>
         </view>
         <view class="margin-top margin-lr-sm padding-lr-sm bg-white">
             <view v-if="deskList.length > 0" class="cu-form-group solid-bottom">
@@ -43,10 +43,10 @@
             </view>
         </view>
         <view class="padding-lr-sm  margin-lr-sm  bg-white ">
-            <viwe class="text-df padding-tb-sm flex justify-between">
+            <view class="text-df padding-tb-sm flex justify-between">
                 <text class="text-black text-bold">支付方式</text>
                 <text class="text-green">在线支付</text>
-            </viwe>
+            </view>
             <view class="cu-form-group "><textarea @input="textareaAInput" class="bg-gray textarea" maxlength="-1" placeholder="更多备注信息"></textarea></view>
         </view>
         <view class="cu-tabbar-height margin-top-sm"></view>
@@ -264,7 +264,7 @@ export default {
                     if (res.statusCode === 200 && res.data.code === '1000') {
                         const ticket = res.data.data;
                         uni.setStorageSync('ticket', ticket);
-                        const url = `/pages/callNumber/index?shopId=${self.option.shopId}&mark=${mark}&markId=${markId}&desk=${self.desk}&wait=${self.option.wait}`;
+                        const url = `/pages/index/index?curr=call&shopId=${self.option.shopId}&mark=${mark}&markId=${markId}&desk=${self.desk}&wait=${self.option.wait}`;
                         uni.navigateTo({ url });
                     } else {
                         uni.showToast({

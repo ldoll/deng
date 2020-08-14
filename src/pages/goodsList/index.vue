@@ -275,7 +275,8 @@ export default {
                         const wait = res.data.data.count;
                         const ticket = res.data.data.ticket;
                         uni.setStorageSync('ticket', ticket);
-                        const url = `/pages/callNumber/index?shopId=${shopId}&mark=${mark}&markId=${markId}&wait=${wait}`;
+                        const url = `/pages/index/index?curr=call&shopId=${shopId}&mark=${mark}&markId=${markId}&wait=${wait}`;
+                        // const url = `/pages/call/index?shopId=${shopId}&mark=${mark}&markId=${markId}&wait=${wait}`;
                         uni.navigateTo({ url });
                     } else {
                         uni.showToast({

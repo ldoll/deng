@@ -104,7 +104,8 @@ export default {
                     name: '其他',
                     type: 4
                 }
-            ]
+            ],
+            userInfo: {},
         };
     },
     onLoad(option) {
@@ -112,6 +113,7 @@ export default {
         uni.showLoading({
             title: '加载中'
         });
+        self.userInfo = uni.getStorageSync('userInfo');
         self.init();
     },
     onReady() {
@@ -132,12 +134,11 @@ export default {
     methods: {
         init() {
             const self = this;
-            const userInfo = uni.getStorageSync('userInfo');
             uni.request({
                 url: api.myTicket,
                 method: 'get',
                 data: {
-                    users_id: userInfo.id,
+                    users_id: self.userInfo.id,
                 },
                 success: res => {
                     console.log(api.myTicket, res);
@@ -148,7 +149,6 @@ export default {
                             list[i].checked = false;
                         });
                         self.list = [...list];
-                        console.log(self.list);
                     } else {
                         uni.showToast({
                             icon: 'none',
@@ -206,43 +206,45 @@ export default {
         },
         gotopay() {
             // 预下单 支付
-            // self.postOrder();
+            if (!this.money) {
+                uni.showToast({
+                    icon: 'none',
+                    title: '请输入金额'
+                });
+            } else if (this.inputMoney === '') {
+                uni.showToast({
+                    icon: 'none',
+                    title: '请选择优惠券'
+                });
+            } else {
+                this.postOrder();
+            }
         },
         postOrder() {
+            const currTicket = this.list[this.checkIndex];
+            console.log('currTicket', currTicket);
             const self = this;
             uni.showLoading({
                 title: '提交中'
             });
-            const product = [];
-            self.orderList.list.forEach(item => {
-                product.push({
-                    id: item.id,
-                    price: Number(item.price),
-                    count: item.num,
-                });
-            });
-            console.log('product', product);
             const orderInfo =  {
-                product, // 二维数组中须包括以下字段：id：产品id，price：产品价格，count：产品数量
-                shop_id: self.option.shopId,
                 users_id: self.userInfo.id,
-                money: Number(self.orderList.money),
-                detail: self.orderList.detail,
-                ticket_id: null,
+                money: self.inputMoney,
+                ticket_id: currTicket.id,
             };
             uni.request({
-                url: api.order,
+                url: api.payTicket,
                 method: 'post',
                 data: orderInfo,
                 success: res => {
-                    console.log(api.order, res);
+                    console.log(api.payTicket, res);
                     uni.hideLoading();
                     if (res.statusCode === 200 && res.data.code === '1000') {
-                        const info = JSON.parse(res.data.data.data);
-                        const orderId = res.data.data.order_id;
-                        const mark = res.data.data.mark;
-                        console.log('payinfo', info);
-                        self.pay(info, orderInfo, orderId, mark);
+                        // const info = JSON.parse(res.data.data.data);
+                        // const orderId = res.data.data.order_id;
+                        // const mark = res.data.data.mark;
+                        // console.log('payinfo', info);
+                        // self.pay(info, orderInfo, orderId, mark);
                     } else {
                         uni.showToast({
                             icon: 'none',

@@ -4,6 +4,10 @@
 			"path": "pages/index/index",
 			"style": {}
 		}, 
+		// {
+		// 	"path": "pages/index/index",
+		// 	"style": {}
+		// }, 
 		{
 			"path": "pages/login/index",
 			"style": {}
@@ -12,18 +16,18 @@
 			"path": "pages/goodsList/index",
 			"style": {}
 		}, 
-		{
-			"path": "pages/callNumber/index",
-			"style": {}
-		}, 
+		// {
+		// 	"path": "pages/callNumber/index",
+		// 	"style": {}
+		// }, 
 		{
 			"path": "pages/confirmOrder/index",
 			"style": {}
 		}, 
-		{
-			"path": "pages/my/index",
-			"style": {}
-		}, 
+		// {
+		// 	"path": "pages/my/index",
+		// 	"style": {}
+		// }, 
 		{
 			"path": "pages/myOrderList/index",
 			"style": {}

@@ -1,4 +1,4 @@
-<template>
+<template name="my">
     <view class="body">
         <cu-custom :isBack="false" class="text-bold" bgColor="bg-green">
             <block slot="backText"></block>
@@ -7,7 +7,8 @@
         <view class="cu-list menu-avatar bg-green" style="padding-bottom: 40upx;">
             <view class="cu-item">
                 <view class="cu-avatar round lg">
-                    <image :src="userInfo.userInfo.avatarUrl" style="height: 100%; border-radius: 5000upx;"></image>
+                    <image v-if="isLogin" :src="userInfo.userInfo.avatarUrl" style="height: 100%; border-radius: 5000upx;"></image>
+                    <image v-else src="/static/icon/touxiang.png" style="height: 100%; border-radius: 5000upx;"></image>
                 </view>
                 <view @click="nologin" data-type="1" class="content">
                     <view class="text-white title">{{nickName}}</view>
@@ -24,9 +25,9 @@
             </view>
         </view>
         <!-- banner -->
-        <view style="overflow: hidden; z-index: 1;" class="margin-lr relative radius-xl margin-tb-sm">
+        <view style="overflow: hidden; z-index: 1;" class="margin-lr relative radius-xl">
             <swiper
-                :indicator-dots="true"
+                :indicator-dots="false"
                 :circular="true"
                 :autoplay="true"
                 class="swiper"
@@ -37,22 +38,32 @@
                 <swiper-item @click="gotoImg" :data-type="index" v-for="(item, index) in swiperList" :key="index" class="radius-xl" style="overflow: hidden; width: 100%;"><image :src="item.url" mode="" class="radius-xl" style="overflow: hidden; width: 100%; height: 200upx;"></image></swiper-item>
             </swiper>
         </view>
-        <view v-for="(item,index) in nav" :key="index" :data-type="item.img" :class="index === 2 ? 'margin-top' : ''" @click="gotoOther" class="padding-left bg-white ">
-            <viwe :class="index !== 1 && index !== 4 ? 'solid-bottom' : ''" style="height: 96upx;" class="padding-right text-df flex align-center">
+        <view v-for="(item,index) in nav" :key="index" :data-type="item.img" :class="index === 2 ? 'margin-top' : ''" @click="gotoOther" class="padding-left bg-white relative">
+            <view v-if="index !== 2" :class="index !== 1 && index !== 4 ? 'solid-bottom' : ''" style="height: 102upx;" class="padding-right text-df flex align-center">
                 <view class="cu-avatar sm margin-right-sm radius bg-transparent">
                     <image :src="'/static/icon/' + item.img + '.png'" style="height: 100%;"></image>
                 </view>
                 <text class="text-black basis-lg ">{{item.name}}</text>
                 <text class="text-gray cuIcon-right flex-sub text-right"></text>
-            </viwe>
+            </view>
+            <view v-else :class="index !== 1 && index !== 4 ? 'solid-bottom' : ''" style="height: 102upx;" class="padding-right text-df flex align-center">
+                <view class="cu-avatar sm margin-right-sm radius bg-transparent">
+                    <image :src="'/static/icon/' + item.img + '.png'" style="height: 100%;"></image>
+                </view>
+                <text class="text-black basis-lg ">{{item.name}}</text>
+                <text class="text-gray cuIcon-right flex-sub text-right"></text>
+                <button class="kefu" open-type="contact" session-from="weapp">
+                </button>
+            </view>
         </view>
         <!-- 退出登录 -->
+
         <view class="padding-lr-xl  margin-xl ">
-            <view @click="nologin" class="bg-white text-df padding-tb-sm flex align-center text-center"><text class="text-black flex-sub">{{isLogin ? "退出登录" : "立即登录"}}</text></view>
+            <view @click="nologin" class="bg-white text-df padding-tb-sm flex align-center text-center radius-sm"><text class="text-black flex-sub">{{isLogin ? "退出登录" : "立即登录"}}</text></view>
         </view>
         <view class="cu-tabbar-height"></view>
         <!-- 底部 -->
-        <view class="cu-bar tabbar bg-white shadow foot">
+        <!--   <view class="cu-bar tabbar bg-white shadow foot">
             <view @click="NavChange" class="action" data-cur="home">
                 <view class="cuIcon-cu-image"><image :src="'/static/icon/home' + [PageCur === 'home' ? 'Active' : ''] + '.png'"></image></view>
                 <view :class="PageCur === 'home' ? 'text-green' : 'text-gray'">首页</view>
@@ -65,7 +76,7 @@
                 <view class="cuIcon-cu-image"><image :src="'/static/icon/my' + [PageCur === 'my' ? 'Active' : ''] + '.png'"></image></view>
                 <view :class="PageCur === 'my' ? 'text-green' : 'text-gray'">我的</view>
             </view>
-        </view>
+        </view> -->
     </view>
 </template>
 
@@ -96,7 +107,7 @@ export default {
                 },
                 {
                     img: 'SettleIn',
-                    name: '商户入住',
+                    name: '商户入驻',
                 },
                 {
                     img: 'aboutMe',
@@ -105,11 +116,6 @@ export default {
             ],
             PageCur: 'my',
             swiperList: [
-                {
-                    id: 0,
-                    type: 'image',
-                    url: imgBase64.banner1
-                },
                 {
                     id: 1,
                     type: 'image',
@@ -128,7 +134,7 @@ export default {
             }
         },
     },
-    onLoad() {
+    beforeMount() {
         const self = this;
         const wxInfo = uni.getStorageSync('wxInfo');
         if (wxInfo) {
@@ -153,7 +159,7 @@ export default {
             if (cur === 'home') {
                 url = `/pages/index/index`;
             } else if (cur === 'call') {
-                url = `/pages/callNumber/index`;
+                url = `/pages/call/index`;
             } else if (cur === 'my') {
                 return;
             }
@@ -162,6 +168,12 @@ export default {
         },
         gotoOther(e) {
             const type = e.currentTarget.dataset.type;
+            if (type === 'SettleIn') {
+                uni.navigateToMiniProgram({
+                    appId: 'wx1add8343e9096835',
+                });
+                return;
+            }
             let url;
             switch (type) {
                 case 'consumerCoupon':
@@ -236,6 +248,7 @@ export default {
 .rightBox {
   position: absolute;
   right: 10upx;
+  top: 10upx;
 }
 
 .screen-swiper {
@@ -254,5 +267,13 @@ export default {
   width: 40upx;
   height: 40upx;
   font-size: 1em;
+}
+
+.kefu {
+  position: absolute;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
 }
 </style>

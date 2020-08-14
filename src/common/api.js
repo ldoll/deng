@@ -15,4 +15,5 @@ export default {
     tableNum: `${baseUrl}tableNum`, // 获得座位
     confirm: `${baseUrl}confirm`, // 完成订单
     markInfo: `${baseUrl}markInfo`, // 获取排号信息
+    payTicket: `${baseUrl}payTicket`, // 优惠券下单
 };

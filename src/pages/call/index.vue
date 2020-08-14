@@ -1,4 +1,4 @@
-<template>
+<template name="call">
     <view :style="'min-height:calc(100vh - env(safe-area-inset-bottom) / 2 - ' + topx + 'px)'" class="body bg-white">
         <cu-custom :isBack="false" class="text-bold" bgColor="bg-white">
             <block slot="backText"></block>
@@ -12,7 +12,7 @@
             名顾客排队
         </view>
         <view class="text-white text-center padding-sm">
-            <button v-if="option.desk" class="cu-btn bg-green lg">{{option.desk}}</button>
+            <button v-if="option.desk" class="cu-btn bg-green lg">桌号{{option.desk}}</button>
         </view>
         <!-- fixed -->
         <view class="fixed">
@@ -27,8 +27,9 @@
             </view>
             <view class="cu-tabbar-height"></view>
         </view>
+
         <!-- 底部 -->
-        <view class="cu-bar tabbar bg-white shadow foot">
+        <!--   <view class="cu-bar tabbar bg-white shadow foot">
             <view @click="NavChange" class="action" data-cur="home">
                 <view class="cuIcon-cu-image"><image :src="'/static/icon/home' + [PageCur === 'home' ? 'Active' : ''] + '.png'"></image></view>
                 <view :class="PageCur === 'home' ? 'text-green' : 'text-gray'">首页</view>
@@ -41,22 +42,22 @@
                 <view class="cuIcon-cu-image"><image :src="'/static/icon/my' + [PageCur === 'my' ? 'Active' : ''] + '.png'"></image></view>
                 <view :class="PageCur === 'my' ? 'text-green' : 'text-gray'">我的</view>
             </view>
-        </view>
+        </view> -->
         <!-- modal -->
         <view :class="showModal ? 'show' : ''" :style="{ top: CustomBar + 'px' }" class="cu-modal">
             <view class="cu-dialog">
                 <view class="bg-img" style="background-image: url('https://wait.youngotemai.com/img/mini/mm.png'); height: 100%;">
-                    <!-- <view style="height: 100%;"> -->
-                    <!-- <image src="https://wait.youngotemai.com/img/mini/mm.png" mode='aspectFit' /> -->
                     <view class="xxPositon">
                         <view class="cu-bar justify-end text-white">
                             <view @click="closeModal" class="action">
-                                <text class="cuIcon-close "></text>
+                                <view class="cu-avatar sm1 margin-right-xl radius bg-transparent">
+                                    <image src="/static/icon/xx.png" style="height: 100%;"></image>
+                                </view>
                             </view>
                         </view>
                     </view>
                     <view class="price">
-                        {{ticket.price}}
+                        {{ticketMoney}}
                     </view>
                     <view class="name text-cut">
                         {{ticket.name}}
@@ -72,48 +73,57 @@
 <script>
 import api from '@/common/api.js';
 export default {
+    props: ['opt'],
     data() {
         return {
             PageCur: 'call',
-            option: {},
             submit: '',
             finished: null,
             showModal: false,
             userInfo: {},
-            ticket: {},
+            option: {},
+            ticket: {
+                price: '',
+                name: '',
+            },
             StatusBar: this.StatusBar,
             CustomBar: this.CustomBar
         };
     },
-    onLoad(option) {
+    computed: {
+        topx() {
+            return Number(uni.upx2px(100));
+        },
+        ticketMoney() {
+            if (this.ticket && this.ticket.price) {
+                return this.ticket.price.split('.')[0];
+            } else {
+                return '';
+            }
+        },
+    },
+    created: function() {
+        this.option = this.opt;
+        console.log('2-created 创建完成', this.option);
+    },
+    beforeMount() {
+        const self = this;
+        console.log('3-beforeMount 挂载之前', this.option);
         uni.showLoading({
             title: '加载中'
         });
-        const self = this;
-        self.option = option;
         self.userInfo = uni.getStorageSync('userInfo');
-        if (option.shopId) {
+        if (this.option && this.option.shopId) {
             // url 需要desk,wait,mark,markId,
             // markid用于完成订单
             this.ticket = uni.getStorageSync('ticket');
+            console.log('ticket', this.ticket);
             if (this.ticket) {
                 this.openModal();
             }
             self.showMark();
         } else {
             self.init();
-        }
-        // self.ticket = {
-        //     price: '5.00',
-        //     name: '果实餐品果实餐品'
-        // };
-        // self.openModal();
-    },
-    onReady() {
-    },
-    computed: {
-        topx() {
-            return Number(uni.upx2px(100));
         }
     },
     methods: {
@@ -203,6 +213,7 @@ export default {
             const self = this;
             self.submit = '已完成';
             self.finished = true;
+            self.$emit('clearOption');
         },
         gotoShopList() {
             if (this.finished) {
@@ -267,6 +278,12 @@ export default {
   font-size: 2em;
 }
 
+.cu-avatar.sm {
+  width: 52upx;
+  height: 52upx;
+  font-size: 1em;
+}
+
 .fixed {
   position: fixed;
   bottom: 0;
@@ -277,14 +294,16 @@ export default {
 .cu-dialog {
   width: 100%;
   background: transparent;
-  height: 100%;
+  height: 1000rpx;
 }
 
 .bg-img {
   background-size: contain;
   background-position: top;
-  position: relative;
-  margin-top: 30%;
+  position: absolute;
+  top: 50%;
+  width: 100%;
+  transform: translate(0, -50%);
 }
 
 .xxPositon {
@@ -295,27 +314,26 @@ export default {
 
 .price {
   position: absolute;
-  color: red;
-  top: 490upx;
-
-  /*  top: 33.5%; */
-  left: 41%;
-  font-size: 35upx;
+  color: #ca3f20;
+  top: 47.4%;
+  left: 43%;
+  font-size: 55upx;
 }
 
 .name {
   position: absolute;
-  color: red;
-  top: 490upx;
-  left: 68%;
+  color: #ca3f20;
+  top: 49.1%;
+  left: 66%;
   font-weight: bold;
-  font-size: 25upx;
+  font-size: 24upx;
   width: 125upx;
+  text-align: left;
 }
 
 .gotoCoupon {
   position: absolute;
-  color: red;
+  color: #ca3f20;
   top: 650upx;
   right: 26%;
   width: 31%;

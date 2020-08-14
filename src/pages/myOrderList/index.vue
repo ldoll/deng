@@ -89,7 +89,7 @@ export default {
                         } else {
                             letterMark = resMark.letter + resMark.num;
                         }
-                        const url = `/pages/callNumber/index?shopId=${item.shop_id}&mark=${letterMark}&markId=${item.mark_id}&desk=${desk}&wait=${wait}`;
+                        const url = `/pages/index/index?curr=call&shopId=${item.shop_id}&mark=${letterMark}&markId=${item.mark_id}&desk=${desk}&wait=${wait}`;
                         uni.navigateTo({ url });
                     } else {
                         uni.showToast({

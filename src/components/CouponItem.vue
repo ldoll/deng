@@ -2,25 +2,25 @@
     <view class="body">
         <view class="cu-list menu-avatar">
             <view class="cu-item">
-                <view :style="'background-image:url(https:' + item.logo + ');'" class="cu-avatar radius"></view>
+                <view :style="'background-image:url(https://wait.youngotemai.com/' + item.logo + ');'" class="cu-avatar radius"></view>
                 <view class="content">
                     <view class="text-black text-bold">
                         <view class="text-cut">{{item.name}}</view>
                     </view>
-                    <view class="text-gray text-xs flex">
+                    <view class="text-gray text-sm flex">
                         <view class="text-cut padding-right-sm">距离你</view>
                         <view class="text-green">{{item.distance || 0}}m</view>
                     </view>
                 </view>
                 <view class="action">
-                    <view class="text-red text-sm">￥<text class="text-xxl text-bold" style="display: inline-block; transform: translateY(15upx);">{{item.price}}</text></view>
+                    <view class="text-red text-sm">￥<text class="text-xxl text-bold" style="display: inline-block; transform: translateY(15upx);">{{item.price.split('.')[0]}}</text></view>
                     <view class="text-red"><text style="opacity: 0;">{{item.price}}</text></view>
                 </view>
             </view>
         </view>
         <view class="bg-white radius-df" style="border-top: 1px dashed #eee;">
             <view class="padding-sm">
-                <view class="text-gray text-xs">{{item.detail || '仅限本店使用，同店一次只能使用一张'}}</view>
+                <view class="text-gray text-sm">{{item.detail || '仅限本店使用，同店一次只能使用一张'}}</view>
             </view>
         </view>
     </view>
