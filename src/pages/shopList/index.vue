@@ -132,7 +132,7 @@ export default {
                     } else {
                         uni.showToast({
                             icon: 'none',
-                            title: res.data.msg
+                            title: res.data.msg || '获取商户列表失败'
                         });
                     }
                 },
@@ -140,7 +140,7 @@ export default {
                     console.log('shibai', res);
                     uni.showToast({
                         icon: 'none',
-                        title: '获取周围商户列表失败'
+                        title: '获取商户列表失败'
                     });
                 }
             });
@@ -275,7 +275,7 @@ export default {
                     } else {
                         uni.showToast({
                             icon: 'none',
-                            title: res.data.msg
+                            title: res.data.msg || '搜索失败'
                         });
                     }
                 },

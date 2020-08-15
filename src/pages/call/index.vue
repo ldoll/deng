@@ -102,7 +102,7 @@ export default {
             }
         },
     },
-    created: function() {
+    created() {
         this.option = this.opt;
         console.log('2-created 创建完成', this.option);
     },
@@ -175,7 +175,7 @@ export default {
                     } else {
                         uni.showToast({
                             icon: 'none',
-                            title: res.data.msg
+                            title: res.data.msg || '获取叫号信息失败'
                         });
                         self.isFinished();
                     }
@@ -184,7 +184,7 @@ export default {
                     console.log('失败', res);
                     uni.showToast({
                         icon: 'none',
-                        title: '加载失败'
+                        title: '获取叫号信息失败'
                     });
                     self.isFinished();
                 }
@@ -244,11 +244,15 @@ export default {
                     console.log(api.confirm, res);
                     uni.hideLoading();
                     if (res.statusCode === 200 && res.data.code === '1000') {
+                        uni.showToast({
+                            icon: 'none',
+                            title: '提交成功'
+                        });
                         this.isFinished();
                     } else {
                         uni.showToast({
                             icon: 'none',
-                            title: res.data.msg
+                            title: res.data.msg || '提交失败'
                         });
                     }
                 },

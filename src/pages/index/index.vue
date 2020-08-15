@@ -1,6 +1,6 @@
 <template>
     <view>
-        <home v-if="PageCur === 'home'"></home>
+        <home :opt="opt" v-if="PageCur === 'home'"></home>
         <call :opt="opt" @clearOption="clearOption" v-if="PageCur === 'call'"></call>
         <my v-if="PageCur === 'my'"></my>
         <view class="cu-bar tabbar bg-white shadow foot">
@@ -30,12 +30,12 @@
 export default {
     data() {
         return {
-            PageCur: 'home',
+            PageCur: '',
             opt: {},
         };
     },
     onLoad(option) {
-        this.PageCur = option.curr;
+        this.PageCur = option.curr || 'home';
         this.opt = option;
         console.log('onload', option);
     },
@@ -72,6 +72,7 @@ export default {
     methods: {
         NavChange: function(e) {
             this.PageCur = e.currentTarget.dataset.cur;
+            this.opt.curr = e.currentTarget.dataset.cur;
         },
         clearOption() {
             this.opt = {};

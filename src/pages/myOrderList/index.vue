@@ -47,7 +47,7 @@ export default {
                     } else {
                         uni.showToast({
                             icon: 'none',
-                            title: res.data.msg
+                            title: res.data.msg || '获取订单列表失败'
                         });
                     }
                 },
@@ -94,7 +94,7 @@ export default {
                     } else {
                         uni.showToast({
                             icon: 'none',
-                            title: res.data.msg
+                            title: res.data.msg || '获取叫号信息失败'
                         });
                     }
                 },

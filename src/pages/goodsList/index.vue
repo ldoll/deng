@@ -122,7 +122,7 @@ export default {
                     } else {
                         uni.showToast({
                             icon: 'none',
-                            title: res.data.msg
+                            title: res.data.msg || '获取商品信息失败'
                         });
                     }
                 },
@@ -281,7 +281,7 @@ export default {
                     } else {
                         uni.showToast({
                             icon: 'none',
-                            title: res.data.msg,
+                            title: res.data.msg || '提交失败'
                         });
                     }
                 },

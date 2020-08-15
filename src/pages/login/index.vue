@@ -94,7 +94,7 @@ export default {
                                         console.log('doLogin fail');
                                         uni.showToast({
                                             icon: 'none',
-                                            title: res.data.msg
+                                            title: res.data.msg || '登录失败'
                                         });
                                     }
                                 },

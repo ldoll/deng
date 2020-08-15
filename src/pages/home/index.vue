@@ -105,6 +105,7 @@ export default {
     components: {
         ShopItem
     },
+    props: ['opt'],
     data() {
         return {
             nav1: [
@@ -171,13 +172,15 @@ export default {
             return this.shopList.filter(item => item.distance <= 1000);
         }
     },
-    beforeCreate() {
+    created() {
+        console.log('2-created 创建完成home', this.opt);
     },
     beforeMount() {
         uni.showLoading({
             title: '加载中'
         });
         const self = this;
+        console.log('3-beforeMount 挂载之前home', this.opt);
         self.userInfo = uni.getStorageSync('userInfo');
         self.getLocation();
 
@@ -272,7 +275,7 @@ export default {
                     } else {
                         uni.showToast({
                             icon: 'none',
-                            title: res.data.msg
+                            title: res.data.msg || '获取数据异常'
                         });
                     }
                 },

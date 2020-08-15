@@ -26,11 +26,11 @@
                 :data-id="index"
                 @click="CheckboxChange"
             >
-                <view v-if="list.length > 0 && (item.type === TabType[TabCur].type || TabCur === 0)" class="flex align-center margin-sm justify-between">
+                <view v-show="TabCur === 0 || item.type === TabType[TabCur].type" class="flex align-center margin-sm justify-between">
                     <view class="basis-5 margin-right-sm">
                         <view class="cu-avatar sm round bg-transparent">
                             <image v-if="item.checked === true" style="height: 100%;" src="/static/icon/chooseActive.png"></image>
-                            <image v-if="item.checked === false" style="height: 100%;" src="/static/icon/choose.png"></image>
+                            <image v-else style="height: 100%;" src="/static/icon/choose.png"></image>
                         </view>
                     </view>
                     <view class="flex-sub margin-right"><CouponItem :item="item" /></view>
@@ -144,15 +144,15 @@ export default {
                     console.log(api.myTicket, res);
                     uni.hideLoading();
                     if (res.statusCode === 200 && res.data.code === '1000') {
-                        const list = res.data.data;
-                        list.forEach((item, i) => {
-                            list[i].checked = false;
-                        });
-                        self.list = [...list];
+                        self.list = res.data.data;
+                        // list.forEach((item, i) => {
+                        //     list[i].checked = false;
+                        // });
+                        // self.list = list;
                     } else {
                         uni.showToast({
                             icon: 'none',
-                            title: res.data.msg
+                            title: res.data.msg || '获取消费券信息失败'
                         });
                     }
                 },
@@ -230,7 +230,7 @@ export default {
             const orderInfo =  {
                 users_id: self.userInfo.id,
                 money: self.inputMoney,
-                ticket_id: currTicket.id,
+                id: currTicket.id,
             };
             uni.request({
                 url: api.payTicket,
@@ -240,15 +240,18 @@ export default {
                     console.log(api.payTicket, res);
                     uni.hideLoading();
                     if (res.statusCode === 200 && res.data.code === '1000') {
-                        // const info = JSON.parse(res.data.data.data);
-                        // const orderId = res.data.data.order_id;
-                        // const mark = res.data.data.mark;
-                        // console.log('payinfo', info);
-                        // self.pay(info, orderInfo, orderId, mark);
+                        const info = JSON.parse(res.data.data.data);
+                        console.log('payinfo', info);
+                        uni.getProvider({
+                            service: 'oauth',
+                            success: function(res) {
+                                self.pay(info, orderInfo, res.provider[0]);
+                            }
+                        });
                     } else {
                         uni.showToast({
                             icon: 'none',
-                            title: res.data.msg
+                            title: res.data.msg || '下单失败'
                         });
                     }
                 },
@@ -261,12 +264,12 @@ export default {
                 },
             });
         },
-        pay(info, orderInfo, orderId, mark) {
-            const self = this;
+        pay(info, orderInfo, provider) {
+            // const self = this;
             const { nonceStr, paySign, signType, timeStamp } = info.biz_response.data.wap_pay_request;
             const package1 = info.biz_response.data.wap_pay_request.package;
             uni.requestPayment({
-                provider: self.provider,
+                provider,
                 orderInfo,
                 timeStamp,
                 nonceStr,
@@ -275,7 +278,11 @@ export default {
                 paySign,
                 success: res => {
                     console.log('成功', res);
-                    self.getTicket(orderId, mark);
+                    // self.getTicket(orderId, mark);
+                    uni.showToast({
+                        icon: 'none',
+                        title: '下单成功'
+                    });
                 },
                 fail: res => {
                     console.log('失败', res);
