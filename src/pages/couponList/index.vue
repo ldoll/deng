@@ -49,7 +49,7 @@
                     <view class="flex flex-sub text-gray text-sm">消费金额</view>
                     <view class="flex flex-sub padding-tb-xs align-end text-black">
                         <view class="basis-5 text-sm">￥</view>
-                        <view class="flex-sub"><input @input="changeMoney" type="digit" class="text-bold text-lg" placeholder="清输入消费金额" /></view>
+                        <view class="flex-sub"><input @input="changeMoney" :value="inputMoney" maxlength="7" type="digit" class="text-bold text-lg" placeholder="清输入消费金额" /></view>
                     </view>
                 </view>
             </view>
@@ -145,6 +145,8 @@ export default {
                     uni.hideLoading();
                     if (res.statusCode === 200 && res.data.code === '1000') {
                         self.list = res.data.data;
+                        self.money = 0;
+                        self.inputMoney = '';
                         // list.forEach((item, i) => {
                         //     list[i].checked = false;
                         // });
@@ -187,7 +189,9 @@ export default {
             this.computedMoney();
         },
         changeMoney(e) {
-            this.inputMoney = e.target.value;
+            const val = e.target.value;
+            console.log(e.target.value);
+            this.inputMoney = val;
             this.computedMoney();
         },
         computedMoney() {
@@ -217,6 +221,7 @@ export default {
                     title: '请选择优惠券'
                 });
             } else {
+                this.inputMoney = Number(this.inputMoney).toFixed(2);
                 this.postOrder();
             }
         },
@@ -265,7 +270,7 @@ export default {
             });
         },
         pay(info, orderInfo, provider) {
-            // const self = this;
+            const self = this;
             const { nonceStr, paySign, signType, timeStamp } = info.biz_response.data.wap_pay_request;
             const package1 = info.biz_response.data.wap_pay_request.package;
             uni.requestPayment({
@@ -283,6 +288,7 @@ export default {
                         icon: 'none',
                         title: '下单成功'
                     });
+                    self.init();
                 },
                 fail: res => {
                     console.log('失败', res);
